@@ -4,13 +4,13 @@ import pandas as pd
 
 base_url = 'http://127.0.0.1:8000'
 
-st.title("Cars Explorer")
+st.title("Biscayne Bay Water Quality")
 
 tab1, tab2, tab3, tab4 = st.tabs([
-    "Cars",
-    "Makes",
-    "Bodies",
-    "Prices"
+    "Dataset",
+    "Idk",
+    "Tab",
+    "Another Tab"
 ])
 
 with tab1:
