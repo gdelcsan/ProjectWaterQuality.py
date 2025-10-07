@@ -15,11 +15,11 @@ tab1, tab2, tab3, tab4 = st.tabs([
 
 with tab1:
     if st.button("Load Dataset"):
-        response = requests.get(base_url + '/cars').json()
+        response = requests.get(base_url + '/waterQuality').json()
         st.json(pd.DataFrame(response))
 
 with tab2:
-    if st.button("Load Makes"):
-        response = requests.get(base_url + '/cars/makes').json()
+    if st.button("Load"):
+        response = requests.get(base_url + '/waterQuality/load').json()
         st.json(response)
 
