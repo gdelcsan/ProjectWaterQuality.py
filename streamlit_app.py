@@ -1,6 +1,25 @@
 import streamlit as st
+import requests
+import pandas as pd
 
-st.title("🎈 My new app")
-st.write(
-    "Let's start building! For help and inspiration, head over to [docs.streamlit.io](https://docs.streamlit.io/)."
-)
+base_url = 'http://127.0.0.1:8000'
+
+st.title("Cars Explorer")
+
+tab1, tab2, tab3, tab4 = st.tabs([
+    "Cars",
+    "Makes",
+    "Bodies",
+    "Prices"
+])
+
+with tab1:
+    if st.button("Load Cars"):
+        response = requests.get(base_url + '/cars').json()
+        st.json(pd.DataFrame(response))
+
+with tab2:
+    if st.button("Load Makes"):
+        response = requests.get(base_url + '/cars/makes').json()
+        st.json(response)
+
