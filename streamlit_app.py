@@ -14,7 +14,7 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 with tab1:
-    if st.button("Load Cars"):
+    if st.button("Load Dataset"):
         response = requests.get(base_url + '/cars').json()
         st.json(pd.DataFrame(response))
 
