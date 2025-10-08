@@ -2,6 +2,14 @@ import streamlit as st
 import requests
 import pandas as pd
 
+[theme]
+base = "light"
+primaryColor = "#E86F52"          
+backgroundColor = "#FBF7F2"         
+secondaryBackgroundColor = "#F2ECE4" 
+textColor = "#1F2937"               
+font = "sans serif"                 
+
 base_url = 'http://127.0.0.1:8000'
 
 st.title("Biscayne Bay Water Quality")
