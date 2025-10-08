@@ -8,18 +8,14 @@ st.markdown("""
     .stApp {
         background-color: #FBF7F2;
     }
-
-    /* Optionally adjust sidebar background */
-    [data-testid="stSidebar"] {
-        background-color: #F2ECE4;
-    }
-
-    /* Optional: make widgets pop */
+            
+    /* Make widgets pop */
     .stButton>button {
         border-radius: 10px;
         font-weight: 600;
     }
-    /* --- Global button styling --- */
+            
+    /* Button styling */
     .stButton > button {
     color: white;
     background-color: #FACF32;       /* primary color */
@@ -30,24 +26,25 @@ st.markdown("""
     transition: all 0.2s ease-in-out;
     }
 
-    /* --- Hover effect --- */
+    /* Hover effect */
     .stButton > button:hover {
     background-color: #FAC141;
     transform: scale(1.02);
     }
 
-    /* --- Secondary-style button (use a CSS class marker in Markdown) --- */
+    /* Secondary-style button */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
     background-color: #A2B7DE;       
     }
 
-    /* --- Tertiary-style button --- */
+    /* Title style */
     .header {
     color: #1C349E;
     text-align: center;
     padding: 2.5rem 1rem;
     }
-    /* Styling for the selected tab label */
+            
+    /* Styling for tabs */
     .stTabs [aria-selected="true"] {
         color: #FAC141;
     }
@@ -77,4 +74,6 @@ with tab2:
     if st.button("Load"):
         response = requests.get(base_url + '/waterQuality/load').json()
         st.json(response)
+
+
 
