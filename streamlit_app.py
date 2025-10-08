@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 
+st.set_page_config(layout="wide")
+
 st.markdown("""
     <style>
     /* Set background color for the whole app */
