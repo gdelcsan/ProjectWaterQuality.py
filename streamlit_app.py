@@ -59,10 +59,11 @@ base_url = 'http://127.0.0.1:8000'
 df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1></div>', unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3, tab4 = st.tabs([
     "Dataset",
-    "Cleaned Data",
-    "Plotly Charts"
+    "Clean Dataset",
+    "Plotly Charts",
+    "Contributors"
 ])
 
 with tab1:
@@ -78,6 +79,13 @@ with tab3:
     if st.button("Load Plotly Charts"):
         response = requests.get(base_url + '/waterQuality/load').json()
         st.json(response)
+
+with tab4:
+    st.write("Gabriela del Cristo")
+    st.write("Jason Pena")
+    st.write("Luis Gutierrez")
+    st.write("Lauren Stone")
+
 
 
 
