@@ -7,7 +7,6 @@ st.markdown("""
     /* Set background color for the whole app */
     .stApp {
         background-color: #FBF7F2;
-        background-image: linear-gradient(to bottom right, #FBF7F2, #F9F2E8);
     }
 
     /* Optionally adjust sidebar background */
@@ -33,24 +32,27 @@ st.markdown("""
 
     /* --- Hover effect --- */
     .stButton > button:hover {
-    background-color: #E3B822;
+    background-color: #FAC141;
     transform: scale(1.02);
     }
 
     /* --- Secondary-style button (use a CSS class marker in Markdown) --- */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
-    background-color: #6B7280;       /* gray */
+    background-color: #A2B7DE;       
     }
 
     /* --- Tertiary-style button --- */
-    button[data-baseweb="button"]:has(span:contains("Tertiary")) {
-    background-color: #F2ECE4;
-    color: #1F2937;
-    }
     .header {
-    color: #1D2F57;
+    color: #1C349E;
     text-align: center;
     padding: 2.5rem 1rem;
+    }
+    /* Styling for the selected tab label */
+    .stTabs [aria-selected="true"] {
+        color: #FAC141;
+    }
+    .stTabs [aria-selected="false"] {
+    color: #000000
     }
     </style>
 """, unsafe_allow_html=True)
