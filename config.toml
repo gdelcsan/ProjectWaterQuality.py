@@ -1,8 +1,0 @@
-
-[theme]
-base = "light"
-primaryColor = "#E86F52"            # warm coral for buttons/accents
-backgroundColor = "#FBF7F2"         # page background (warm off-white)
-secondaryBackgroundColor = "#F2ECE4" # sidebar/cards
-textColor = "#1F2937"               # dark gray text
-font = "sans serif"                 # we'll override with Space Grotesk via CSS
