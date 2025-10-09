@@ -78,7 +78,13 @@ with tab2:
         st.json(response)
 
 with tab3:
-    if st.button("Load Plotly Charts"):
+    if st.button("Load Plotly Chart 1"):
+        response = requests.get(base_url + '/waterQuality/load').json()
+        st.json(response)
+    if st.button("Load Plotly Chart 2"):
+        response = requests.get(base_url + '/waterQuality/load').json()
+        st.json(response)
+    if st.button("Load Plotly Chart 3"):
         response = requests.get(base_url + '/waterQuality/load').json()
         st.json(response)
 
