@@ -57,7 +57,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-base_url = 'http://127.0.0.1:8000'
+base_url = 'http://127.0.0.1:5050'
 
 df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022</p></div>', unsafe_allow_html=True)
@@ -75,7 +75,10 @@ with tab1:
 
 with tab2:
     if st.button("Load Clean Dataset"):
-        st.write(df)
+        response = requests.get(base_url + '/cleandataset/load')
+        data = response.json()
+        df_cleaned = pd.DataFrame(data)
+        st.write(df_cleaned)
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
