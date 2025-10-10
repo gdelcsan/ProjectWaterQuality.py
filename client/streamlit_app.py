@@ -78,6 +78,8 @@ with tab2:
         response = requests.get(base_url + '/cleandataset/load')
         data = response.json()
         df_cleaned = pd.DataFrame(data)
+        ##csv = df_cleaned.to_csv(index=False).encode('utf-8')
+        ##st.download_button("Download Cleaned CSV", data=csv, file_name="cleaned_data.csv", mime="text/csv")
         st.write(df_cleaned)
 
 with tab3:
