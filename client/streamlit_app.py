@@ -81,7 +81,7 @@ with tab2:
 with tab3:
     if st.button("Load Plotly Chart 1"):
         st.subheader("pH Correlation with Temperature (C)")
-        df = pd.read_csv("./database/cleaned_data.csv")
+        clean_df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
         df, 
         x="Temperature (C)", 
@@ -91,7 +91,7 @@ with tab3:
 
     if st.button("Load Plotly Chart 2"):
         st.subheader("Total Meters in Depth on Map")
-        df = pd.read_csv("./database/cleaned_data.csv")
+        clean_df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
         df,
         x="latitude",
@@ -104,7 +104,7 @@ with tab3:
 
     if st.button("Load Plotly Chart 3"):
         st.subheader("IDK")
-        df = pd.read_csv("./database/cleaned_data.csv")
+        clean_df = pd.read_csv("./database/cleaned_data.csv")
         st.bar_chart(df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
 
 with tab4:
