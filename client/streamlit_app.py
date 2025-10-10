@@ -60,7 +60,7 @@ st.markdown("""
 base_url = 'http://127.0.0.1:5050'
 
 df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
-df = pd.read_csv("./database/cleaned_data.csv")
+
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022</p></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -76,12 +76,13 @@ with tab1:
 
 with tab2:
     if st.button("Load Clean Dataset"):
+        df = pd.read_csv("./database/cleaned_data.csv")
         st.write(df)
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
-        st.subheader("Title of Graph")
-        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        st.subheader("pH Correlation with Temperature (C)")
+        df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
         df, 
         x="Temperature (C)", 
@@ -90,41 +91,25 @@ with tab3:
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
-        st.subheader("Another Title IDK")
-        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        st.subheader("Total Meters in Depth on Map")
+        df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
         df,
         x="latitude",
         y="longitude",
-        color="Temperature (C)",
+        color="Total Water Column (m)",
         size="ODO (mg/L)",
         hover_data=["pH"],
         )
         event = st.plotly_chart(fig, key="iris", on_select="rerun")
 
     if st.button("Load Plotly Chart 3"):
-        st.subheader("Title blah blah")
-        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
-        fig = px.scatter(
-        df,
-        x="pH",
-        y="ODO (mg/L)",
-        color="Temperature (C)",
-        color_continuous_scale="reds",
-        )   
-        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
+        st.subheader("IDK")
+        df = pd.read_csv("./database/cleaned_data.csv")
+        st.bar_chart(df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+
 with tab4:
     st.write("Gabriela del Cristo")
     st.write("Jason Pena")
     st.write("Luis Gutierrez")
     st.write("Lauren Stone")
-
-
-
-
-
-
-
-
-
-
