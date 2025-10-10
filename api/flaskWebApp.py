@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from mongoDB import upload
 import pandas as pd
 
 app = Flask(__name__)
@@ -40,6 +41,8 @@ def cleaning_dataset():
     # Removing outliers
     cleaned_dataset = df[~outliers]
     #print(f"Removed {totalrows - removedrows} outliers (from {totalrows} to {remainingrows})")
+    clean_dict = cleaned_dataset.to_dict(orient='records')
+    upload(clean_dict)
 
     #Returning as JSON
     return jsonify(cleaned_dataset.to_dict(orient='records'))
