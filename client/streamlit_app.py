@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import pandas as pd
+import plotly.express as px
 
 st.set_page_config(layout="wide")
 
@@ -56,9 +57,10 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-base_url = 'http://127.0.0.1:8000'
+base_url = 'http://127.0.0.1:5050'
 
 df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+df = pd.read_csv("./database/cleaned_data.csv")
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022</p></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -74,25 +76,53 @@ with tab1:
 
 with tab2:
     if st.button("Load Clean Dataset"):
-        response = requests.get(base_url + '/waterQuality/load').json()
-        st.json(response)
+        st.write(df)
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
-        response = requests.get(base_url + '/waterQuality/load').json()
-        st.json(response)
-    if st.button("Load Plotly Chart 2"):
-        response = requests.get(base_url + '/waterQuality/load').json()
-        st.json(response)
-    if st.button("Load Plotly Chart 3"):
-        response = requests.get(base_url + '/waterQuality/load').json()
-        st.json(response)
+        st.subheader("Title of Graph")
+        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        fig = px.scatter(
+        df, 
+        x="Temperature (C)", 
+        y="pH"
+        )
+        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
+    if st.button("Load Plotly Chart 2"):
+        st.subheader("Another Title IDK")
+        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        fig = px.scatter(
+        df,
+        x="latitude",
+        y="longitude",
+        color="Temperature (C)",
+        size="ODO (mg/L)",
+        hover_data=["pH"],
+        )
+        event = st.plotly_chart(fig, key="iris", on_select="rerun")
+
+    if st.button("Load Plotly Chart 3"):
+        st.subheader("Title blah blah")
+        df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        fig = px.scatter(
+        df,
+        x="pH",
+        y="ODO (mg/L)",
+        color="Temperature (C)",
+        color_continuous_scale="reds",
+        )   
+        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 with tab4:
     st.write("Gabriela del Cristo")
     st.write("Jason Pena")
     st.write("Luis Gutierrez")
     st.write("Lauren Stone")
+
+
+
+
+
 
 
 
