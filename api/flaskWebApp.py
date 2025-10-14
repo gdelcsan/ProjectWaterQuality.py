@@ -12,12 +12,17 @@ df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
 def index():
     return jsonify({
         "routes":{
-            "/cars": "First 10 rows of all cars",
-            "/cars/makes": "List of all unique car makes",
-            "/cars/bodies": "List of all unique car bodies",
-            "cars/prices": "First 10 rows showing car name and price",
+            "/cleandataset": "First 10 rows of water quality",
+            "/cleandataset/load": "List of all water quality data",
+            "/filters": "filters",
+            "/statistics": "mean, median, Q1, Q3, std",
         }
     })
+
+@app.route('/clean')
+def clean():
+    return jsonify(df.head(10).to_dict(orient="records"))
+
 @app.route('/cleandataset/load',methods=['GET'])
 def cleaning_dataset():
     # ZScore Formula
