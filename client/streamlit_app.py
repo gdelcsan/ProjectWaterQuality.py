@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
+from numpy.random import default_rng as rng
 
 st.set_page_config(layout="wide")
 
@@ -71,19 +72,18 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 with tab1:
-    if st.button("Load Dataset"):
+        st.subheader("Original Dataset")
         st.write(df)
 
 with tab2:
-    if st.button("Load Clean Dataset"):
-        st.write(clean_df)
+    st.subheader("Cleaned Dataset")
+    st.write(clean_df)
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
         st.subheader("pH Correlation with Temperature (C)")
-        df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
-        df, 
+        clean_df, 
         x="Temperature (C)", 
         y="pH"
         )
@@ -91,24 +91,18 @@ with tab3:
 
     if st.button("Load Plotly Chart 2"):
         st.subheader("Total Meters in Depth on Map")
-        df = pd.read_csv("./database/cleaned_data.csv")
         fig = px.scatter(
-        df,
-        x="latitude",
-        y="longitude",
-        color="Total Water Column (m)",
-        size="ODO (mg/L)",
-        hover_data=["pH"],
-        )
+        clean_df, x="latitude", y="longitude", color="Total Water Column (m)", size="ODO (mg/L)", hover_data=["pH"])
         event = st.plotly_chart(fig, key="iris", on_select="rerun")
 
     if st.button("Load Plotly Chart 3"):
         st.subheader("IDK")
-        df = pd.read_csv("./database/cleaned_data.csv")
-        st.bar_chart(df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+        st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+   
 
 with tab4:
     st.write("Gabriela del Cristo")
     st.write("Jason Pena")
     st.write("Luis Gutierrez")
     st.write("Lauren Stone")
+
