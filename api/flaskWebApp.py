@@ -15,7 +15,7 @@ def index():
             "/cleandataset": "First 10 rows of water quality",
             "/cleandataset/load": "List of all water quality data",
             "/filters": "filters",
-            "/statistics": "mean, median, Q1, Q3, std",
+            "/stats": "mean, median, Q1, Q3, std",
         }
     })
 
@@ -51,6 +51,9 @@ def cleaning_dataset():
 
     #Returning as JSON
     return jsonify(cleaned_dataset.to_dict(orient='records'))
+
+
+
 
 
 if __name__ == '__main__':
