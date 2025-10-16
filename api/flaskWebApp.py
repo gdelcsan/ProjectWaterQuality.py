@@ -11,13 +11,6 @@ df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
 @app.route('/')
 def index():
     return jsonify({
-<<<<<<< Updated upstream
-        "routes":{
-            "/cleandataset": "First 10 rows of water quality",
-            "/cleandataset/load": "List of all water quality data",
-            "/filters": "filters",
-            "/statistics": "mean, median, Q1, Q3, std",
-=======
         "routes": {
             "/api/status": "returns API status",
             "/api/clean": "First 10 rows of water quality",
@@ -36,7 +29,6 @@ def index():
             },
             "/api/stats": "count, mean, min, max, and percentiles (25%, 50%, 75%)",
             "/outliers" : "return a list of flagged records", 
->>>>>>> Stashed changes
         }
     })
 
@@ -81,8 +73,6 @@ def cleaning_dataset():
     #Returning as JSON
     return jsonify(cleaned_dataset.to_dict(orient='records'))
 
-<<<<<<< Updated upstream
-=======
 @app.route('/api/outliers')
 def pullOutliers():
 
@@ -108,7 +98,6 @@ def pullOutliers():
         "total_outliers": len(outlier_rows),
         "outlier_rows": outlier_dict
     })
->>>>>>> Stashed changes
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
