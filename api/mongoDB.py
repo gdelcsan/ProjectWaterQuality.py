@@ -10,8 +10,8 @@ def upload(data):
     domain = os.getenv('MONGO_DOMAIN')
     uri = "mongodb+srv://" + username + ":" + password + domain + "/?retryWrites=true&w=majority&appName=bbp"
     client = MongoClient(uri, server_api=ServerApi('1'))
-    db = client['WaterQualityData']
-    collection = db['clean_data']
+    db = client['water_quality_data']
+    collection = db['asv_1']
 
     # waits 2 seconds in case more than one user uploads data at the same time
     time.sleep(2)
