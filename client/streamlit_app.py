@@ -64,10 +64,11 @@ df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
 clean_df = pd.read_csv("./database/cleaned_data.csv")
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022</p></div>', unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4 = st.tabs([
+tab1, tab2, tab3, tab4, tab5= st.tabs([
     "Dataset",
     "Clean Dataset",
     "Plotly Charts",
+    "Statistics",
     "Contributors"
 ])
 
@@ -99,8 +100,10 @@ with tab3:
         st.subheader("IDK")
         st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
    
-
 with tab4:
+        st.dataframe(clean_df.describe())
+
+with tab5:
     st.write("Gabriela del Cristo")
     st.write("Jason Pena")
     st.write("Luis Gutierrez")
