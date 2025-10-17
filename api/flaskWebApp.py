@@ -1,10 +1,9 @@
-from flask import Flask, jsonify
-from mongoDB import upload
+from flask import Flask, jsonify, request
+from mongoDB import upload, query
 import pandas as pd
 
 app = Flask(__name__)
 
-df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
 # print(df.head())
 # print(df.columns)
 
@@ -12,39 +11,35 @@ df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
 def index():
     return jsonify({
         "routes": {
-            "/api/status": "returns API status",
-            "/api/clean": "First 10 rows of water quality",
-            "/api/cleandataset": "Clean raw water quality data and returns it as a json",
+            "/api/health": "returns API status",
+            "/api/cleandataset": "cleans raw water quality data",
             "/api/observations": 
             {
-                "return documents with optional query parameters:":
+                "return documents with optional query parameters":
                 [
                     "start/end (ISO timestamps)",
                     "min_temp, max_temp",
                     "min_sal, max_sal",
                     "min_odo, max_odo",
-                    "limit, (default 100, max 1000)"
+                    "limit, (default 100, max 1000)",
                     "skip (for pagination)"
                 ]
             },
             "/api/stats": "count, mean, min, max, and percentiles (25%, 50%, 75%)",
-            "/outliers" : "return a list of flagged records", 
+            "/api/outliers" : "return a list of flagged records", 
         }
     })
 
-@app.route('/api/status')
+@app.route('/api/health')
 def status():
     return { "status": "ok" }
-
-@app.route('/api/clean')
-def clean():
-    return jsonify(df.head(10).to_dict(orient="records"))
 
 @app.route('/api/cleandataset',methods=['GET'])
 def cleaning_dataset():
     # ZScore Formula
     # zscore = ((X - mean) / standard deviation))
-
+    df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
+    
     # Columns for Outliers
     outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
 
@@ -62,7 +57,7 @@ def cleaning_dataset():
     cleaned_dataset = df[~outliers]
     clean_dict = cleaned_dataset.to_dict(orient='records')
 
-    # Responsible for creatign database/report.txt:
+    # Responsible for creating database/report.txt:
     #report = f"Removed {totalrows - removedrows} outliers (from total of {totalrows} rows to remaining rows of {remainingrows})"
     #fp = open("database/report.txt", "w")
     #fp.write(report)
@@ -71,7 +66,34 @@ def cleaning_dataset():
     upload(clean_dict)
 
     #Returning as JSON
-    return jsonify(cleaned_dataset.to_dict(orient='records'))
+    return {"status": "cleaned"}
+
+"""
+STILL IN PROGRESS!!!!!!!! (from Jason)
+
+@app.route('/api/observations')
+def observations():
+    if len(request.args) == 0:
+        return jsonify("No arguments are provided.")
+
+    name_args = ["min_temp", "max_temp", "min_sal", "max_sal", "min_odo", "max_odo", "limit", "skip"]
+    args = {}
+    for i in range(len(name_args)):
+        flask_request = request.args.get(name_args[i])
+        if flask_request: args[name_args[i]] = flask_request
+    if not "temp" in args: args["limit"] = 100
+    if not "skip" in args: args["skip"] = 0
+    
+    from bson import json_util
+    import json
+    return json.loads(json_util.dumps(query(args)))
+    #return query(args)
+"""
+
+@app.route('/api/stats')
+def stats():
+    clean_dataset = pd.read_csv("database/cleaned_data.csv")
+    return jsonify((clean_dataset.describe()).to_dict(orient='dict'))
 
 @app.route('/api/outliers')
 def pullOutliers():

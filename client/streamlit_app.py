@@ -101,7 +101,8 @@ with tab3:
         st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
    
 with tab4:
-    st.dataframe(clean_df.describe())
+    response = requests.get(base_url + "/api/stats").json()
+    st.dataframe(pd.DataFrame(response))
 
 with tab5:
     st.write("Gabriela del Cristo")
