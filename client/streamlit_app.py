@@ -66,7 +66,7 @@ st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022<
 
 tab1, tab2, tab3, tab4, tab5= st.tabs([
     "Dataset",
-    "Clean Dataset",
+    "Cleaned Dataset",
     "Plotly Charts",
     "Statistics",
     "Contributors"
@@ -91,7 +91,7 @@ with tab3:
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
-        st.subheader("Total Celsius on Map")
+        st.subheader("Temperature in Celsius on Map")
         fig = px.scatter(
         clean_df, x="latitude", y="longitude", color="Temperature (C)", size="ODO (mg/L)", hover_data=["pH"])
         event = st.plotly_chart(fig, key="iris", on_select="rerun")
