@@ -73,8 +73,8 @@ tab1, tab2, tab3, tab4, tab5= st.tabs([
 ])
 
 with tab1:
-        st.subheader("Original Dataset")
-        st.write(df)
+    st.subheader("Original Dataset")
+    st.write(df)
 
 with tab2:
     st.subheader("Cleaned Dataset")
@@ -101,11 +101,11 @@ with tab3:
         st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
    
 with tab4:
-        st.dataframe(clean_df.describe())
+    response = requests.get(base_url + "/api/stats").json()
+    st.dataframe(pd.DataFrame(response))
 
 with tab5:
     st.write("Gabriela del Cristo")
     st.write("Jason Pena")
     st.write("Luis Gutierrez")
     st.write("Lauren Stone")
-
