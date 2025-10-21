@@ -25,9 +25,9 @@ def upload(data):
 def helper(field, value):
     selector = ""
     field_name = ""
+    substring = field[4:]
     if "min" in field: selector = "$gt"
     elif "max" in field: selector = "$lt"
-    substring = field[4:]
     
     match substring:
         case "temp":
@@ -45,12 +45,10 @@ def query(params):
     count = 0
     s = params.pop("skip")
     l = params.pop("limit")
-
-    sample = collection.find_one({})
-    if not sample:
-        return "No documents found in the collection."
     
-    if len(params) == 1:
+    if len(params) == 0:
+        filter_query = {}
+    elif len(params) == 1:
         (key, val) = params.popitem()
         filter_query = helper(key, float(val))
     elif len(params) > 1:
@@ -62,5 +60,8 @@ def query(params):
     count = collection.count_documents(filter = filter_query, skip = s, limit = l)
     cursor = collection.find(filter = filter_query, skip = s, limit = l)
 
-    return ({"count": count, "items": cursor.to_list()})
+    if count == 0:
+        return "No documents found in the collection."
+    else:
+        return ({"count": count, "items": cursor.to_list()})
     

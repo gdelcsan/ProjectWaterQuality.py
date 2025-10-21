@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 from mongoDB import upload, query
 import pandas as pd
 
@@ -68,27 +68,32 @@ def cleaning_dataset():
     #Returning as JSON
     return {"status": "cleaned"}
 
-"""
-STILL IN PROGRESS!!!!!!!! (from Jason)
-
 @app.route('/api/observations')
 def observations():
-    if len(request.args) == 0:
-        return jsonify("No arguments are provided.")
-
     name_args = ["min_temp", "max_temp", "min_sal", "max_sal", "min_odo", "max_odo", "limit", "skip"]
     args = {}
     for i in range(len(name_args)):
         flask_request = request.args.get(name_args[i])
         if flask_request: args[name_args[i]] = flask_request
-    if not "temp" in args: args["limit"] = 100
-    if not "skip" in args: args["skip"] = 0
+    
+    if len(args) == 0 and len(request.args.keys()) > 0: 
+        abort(400, "Arguments provided are not supported.")
+        
+    if not "limit" in args: 
+        args["limit"] = 100
+    else:
+        args["limit"] = int(args["limit"])
+        if args["limit"] > 1000: 
+            args["limit"] = 1000
+    if not "skip" in args: 
+        args["skip"] = 0
+    else: 
+        args["skip"] = int(args["skip"])
     
     from bson import json_util
     import json
     return json.loads(json_util.dumps(query(args)))
     #return query(args)
-"""
 
 @app.route('/api/stats')
 def stats():
