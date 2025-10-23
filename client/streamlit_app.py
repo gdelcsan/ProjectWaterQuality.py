@@ -33,7 +33,7 @@ st.markdown("""
         border-right: 1px solid rgba(27,31,35,0.1);  
     }
     .stApp {
-        background-color: #FBF7F2;
+        background-color: #B8E3FC;
     }   
     /* Make widgets pop */
     .stButton>button {
@@ -43,7 +43,7 @@ st.markdown("""
     /* Button styling */
     .stButton > button {
     color: white;
-    background-color: #B8E3FC;       /* primary color */
+    background-color: #4DB4F0;       /* primary color */
     border: none;
     border-radius: 9999px;           /* pill shape */
     padding: 0.6rem 1.2rem;
@@ -52,7 +52,7 @@ st.markdown("""
     }
     /* Hover effect */
     .stButton > button:hover {
-    background-color: #4DB4F0;
+    background-color: #1C349E;
     transform: scale(1.02);
     }
     /* Title style */
