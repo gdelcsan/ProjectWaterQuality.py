@@ -26,13 +26,13 @@ st.set_page_config(layout="wide")
 st.markdown("""
     <style>
     /* Set background color for the whole app */
-    h1, h2, h3, h4, h5, h6,
+    h2, h3
     p, span, div, label,
     .stMarkdown, [data-testid="stMarkdownContainer"] {
         color: #1C349E !important;
     }
     [data-testid="stSidebar"] {
-        background-color: #E9E0D1;         
+        background-color: #EDE5DA;         
     }
     .stApp {
         background-color: #FBF7F2;
