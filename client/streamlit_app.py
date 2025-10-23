@@ -69,13 +69,51 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True) 
 
-base_url = 'http://127.0.0.1:5050'
-
 df1 = pd.read_csv("./database/2021-dec16.csv")
 df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
 df4 = pd.read_csv("./database/2022-oct7.csv")
 clean_df = pd.read_csv("./database/cleaned_data.csv")
+
+##Control Panel
+st.sidebar.header("Control Panel")
+
+# 1. Temperature Range Slider
+TEMP_COL = 'Temperature (c)'
+temp_min_val, temp_max_val = float(df1[TEMP_COL].min()), float(df1[TEMP_COL].max())
+
+temp_min, temp_max = st.sidebar.slider(
+    "Temperature range (°C)",
+    temp_min_val,
+    temp_max_val,
+    (temp_min_val, temp_max_val) # Default to full range
+)
+
+# 2. Salinity Range Slider
+SAL_COL = 'pH'
+sal_min_val, sal_max_val = float(df1[SAL_COL].min()), float(df1[SAL_COL].max())
+
+sal_min, sal_max = st.sidebar.slider(
+    "Salinity range",
+    sal_min_val,
+    sal_max_val,
+    (sal_min_val, sal_max_val) # Default to full range
+)
+
+# 3. ODO Range Slider
+ODO_COL = 'ODO mg/L'
+odo_min_val, odo_max_val = float(df1[ODO_COL].min()), float(df1[ODO_COL].max())
+
+odo_min, odo_max = st.sidebar.slider(
+    "ODO range (mg/L)",
+    odo_min_val,
+    odo_max_val,
+    (odo_min_val, odo_max_val) # Default to full range
+)
+
+# 4. Pagination Inputs
+limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
+page = st.sidebar.number_input("Page number", 1, value=1)
 
 flask_app = Flask(__name__)
 
