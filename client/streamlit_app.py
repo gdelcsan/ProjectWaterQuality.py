@@ -63,7 +63,7 @@ st.markdown("""
     padding: 2.5rem 1rem;
     font-size: 2.5rem;             
     font-weight: 800;
-    background: linear-gradient(90deg, #1C349E, #FACF32); 
+    background: linear-gradient(90deg, #1C349E, #B8E3FC); 
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
