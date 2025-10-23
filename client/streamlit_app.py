@@ -32,7 +32,7 @@ st.markdown("""
         color: #1C349E !important;
     }
     [data-testid="stSidebar"] {
-        background-color: #EDE5DA;         
+        background-color: #F2EBE1;         
     }
     .stApp {
         background-color: #FBF7F2;
@@ -45,7 +45,7 @@ st.markdown("""
     /* Button styling */
     .stButton > button {
     color: white;
-    background-color: #FACF32;       /* primary color */
+    background-color: #677ACF;       /* primary color */
     border: none;
     border-radius: 9999px;           /* pill shape */
     padding: 0.6rem 1.2rem;
