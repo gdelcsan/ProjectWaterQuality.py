@@ -45,7 +45,7 @@ st.markdown("""
     /* Button styling */
     .stButton > button {
     color: white;
-    background-color: #677ACF;       /* primary color */
+    background-color: #B8E3FC;       /* primary color */
     border: none;
     border-radius: 9999px;           /* pill shape */
     padding: 0.6rem 1.2rem;
