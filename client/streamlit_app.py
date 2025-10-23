@@ -61,7 +61,13 @@ st.markdown("""
     .header {
     text-align: center;
     padding: 2.5rem 1rem;
-    }   
+    font-size: 2.5rem;             
+    font-weight: 800;
+    background: linear-gradient(90deg, #1C349E, #FACF32); 
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    }
     /* Secondary-style button */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
     background-color: #A2B7DE;       
