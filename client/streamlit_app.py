@@ -25,7 +25,6 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
     <style>
-    /* Set background color for the whole app */
     h2, h3
     p, span, div, label,
     .stMarkdown, [data-testid="stMarkdownContainer"] {
@@ -35,7 +34,7 @@ st.markdown("""
     section[data-testid="stSidebar"] {
         text-align: center;
         background-color: #B8E3FC;
-        background-image: linear-gradient(120deg, #B8E3FC, #4DB4F0);             
+        background-image: linear-gradient(120deg, #1C349E, #4DB4F0);             
         border-right: 1px solid rgba(27,31,35,0.1);  
     }
     .stApp {
