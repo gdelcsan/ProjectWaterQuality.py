@@ -60,7 +60,6 @@ st.markdown("""
 
 base_url = 'http://127.0.0.1:5050'
 
-df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
 df1 = pd.read_csv("./database/2021-dec16.csv")
 df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
@@ -83,8 +82,6 @@ with tab1:
     st.write(df1)
     st.subheader("October 7, 2022")
     st.write(df4)
-    st.subheader("October ? 2022")
-    st.write(df)
     st.subheader("November 16, 2022")
     st.write(df3)
 
