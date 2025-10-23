@@ -27,6 +27,7 @@ st.markdown("""
     <style>
     /* Sidebar container */
     section[data-testid="stSidebar"] {
+        color: white !important;
         text-align: center;
         background-color: #B8E3FC;
         background-image: linear-gradient(120deg, #4158C4, #4DB4F0);             
