@@ -36,6 +36,10 @@ st.markdown("""
     .stApp {
         background-color: #B8E3FC;
     }   
+    section[data-testid="stSidebar"] div[data-baseweb="select"] * { 
+    color: white !important; 
+    background-color: #222 !important; 
+    }
     /* Make widgets pop */
     .stButton>button {
         border-radius: 10px;
