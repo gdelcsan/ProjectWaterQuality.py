@@ -61,23 +61,35 @@ st.markdown("""
 base_url = 'http://127.0.0.1:5050'
 
 df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+df1 = pd.read_csv("./database/2021-dec16.csv")
+df2 = pd.read_csv("./database/2021-oct21.csv")
+df3 = pd.read_csv("./database/2022-nov16.csv")
+df4 = pd.read_csv("./database/2022-oct7.csv")
 clean_df = pd.read_csv("./database/cleaned_data.csv")
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4, tab5= st.tabs([
-    "Dataset",
-    "Cleaned Dataset",
+    "Datasets",
+    "Clean Datasets",
     "Plotly Charts",
     "Statistics",
     "Contributors"
 ])
 
 with tab1:
-    st.subheader("Original Dataset")
+    st.subheader("October 21, 2021")
+    st.write(df2)
+    st.subheader("December 16, 2021")
+    st.write(df1)
+    st.subheader("October 7, 2022")
+    st.write(df4)
+    st.subheader("October ? 2022")
     st.write(df)
+    st.subheader("November 16, 2022")
+    st.write(df3)
 
 with tab2:
-    st.subheader("Cleaned Dataset")
+    st.subheader("Clean Dataset")
     st.write(clean_df)
 
 with tab3:
