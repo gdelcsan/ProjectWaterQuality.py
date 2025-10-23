@@ -59,9 +59,6 @@ st.markdown("""
     background-color: #1C349E;
     transform: scale(1.02);
     }
-    .stTabs [aria-selected="true"] { 
-    color: 1C349E;
-    }
     /* Title style */
     .header {
     text-align: center;
@@ -77,9 +74,10 @@ st.markdown("""
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
     background-color: #A2B7DE;       
     } 
-    /* Styling for tabs */
     .stTabs [aria-selected="true"] {
-        color: #FAC141;
+    background-color: rgba(77, 180, 240, 0.2);  /* soft blue tint */
+    border-radius: 8px 8px 0 0;  /* rounded top corners */
+    padding: 0.5rem 1rem;
     }
     .stTabs [aria-selected="false"] {
     color: #000000
