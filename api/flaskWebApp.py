@@ -14,9 +14,7 @@ def index():
         "routes":{
             "/cleandataset": "First 10 rows of water quality",
             "/cleandataset/load": "List of all water quality data",
-            "/filters": "filters",
-            "/statistics": "mean, median, Q1, Q3, std",
-            "/outliers" : "outliers", 
+            "/stats": "mean, median, Q1, Q3, std",
         }
     })
 
@@ -32,7 +30,7 @@ def cleaning_dataset():
     df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
 
     # Columns for Outliers
-    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
+    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)', 'Date m,d,y  ']
 
     # Using Formula
     df_zscore = (df[outlier_columns] - df[outlier_columns].mean()) / df[outlier_columns].std(ddof=0)
@@ -52,34 +50,6 @@ def cleaning_dataset():
 
     #Returning as JSON
     return jsonify(cleaned_dataset.to_dict(orient='records'))
-
-@app.route('/outliers')
-def pullOutliers():
-
-    # Dataset gets read
-    df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
-
-    # Use columns to check for outliers
-    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
-
-    #Z-score is computed for each value
-    df_zscore = (df[outlier_columns] - df[outlier_columns].mean()) / df[outlier_columns].std(ddof=0)
-
-    # Identify outliers
-    outliers = (df_zscore.abs() > 3).any(axis=1)
-
-    # Filter out olier rows
-    outlier_rows = df[outliers]
-
-    #JSON output
-    outlier_dict = outlier_rows.to_dict(orient='records')
-
-    return jsonify({
-        "total_outliers": len(outlier_rows),
-        "outlier_rows": outlier_dict
-    })
-
-
 
 
 
