@@ -59,6 +59,9 @@ st.markdown("""
     background-color: #1C349E;
     transform: scale(1.02);
     }
+    .stTabs [aria-selected="true"] { 
+    color: 1C349E;
+    }
     /* Title style */
     .header {
     text-align: center;
