@@ -25,11 +25,6 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
     <style>
-    h2, h3
-    p, span, div, label,
-    .stMarkdown, [data-testid="stMarkdownContainer"] {
-        color: #1C349E !important;
-    }
     /* Sidebar container */
     section[data-testid="stSidebar"] {
         text-align: center;
