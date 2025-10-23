@@ -75,12 +75,10 @@ st.markdown("""
     background-color: #A2B7DE;       
     } 
     .stTabs [aria-selected="true"] {
-    background-color: rgba(77, 180, 240, 0.2);  /* soft blue tint */
-    border-radius: 8px 8px 0 0;  /* rounded top corners */
-    padding: 0.5rem 1rem;
+    color: 4DB4F0;
     }
     .stTabs [aria-selected="false"] {
-    color: #000000
+    color: #ffffff;
     }
     </style>
 """, unsafe_allow_html=True) 
