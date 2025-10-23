@@ -31,8 +31,12 @@ st.markdown("""
     .stMarkdown, [data-testid="stMarkdownContainer"] {
         color: #1C349E !important;
     }
-    [data-testid="stSidebar"] {
-        background-color: #B8E3FC;         
+    /* Sidebar container */
+    section[data-testid="stSidebar"] {
+        text-align: center;
+        background-color: #B8E3FC;
+        background-image: linear-gradient(120deg, #B8E3FC, #4DB4F0);             
+        border-right: 1px solid rgba(27,31,35,0.1);  
     }
     .stApp {
         background-color: #FBF7F2;
