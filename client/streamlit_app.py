@@ -66,7 +66,7 @@ st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>Oct 2022<
 
 tab1, tab2, tab3, tab4, tab5= st.tabs([
     "Dataset",
-    "Clean Dataset",
+    "Cleaned Dataset",
     "Plotly Charts",
     "Statistics",
     "Contributors"
@@ -82,23 +82,36 @@ with tab2:
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
-        st.subheader("pH Correlation with Temperature (C)")
+        st.subheader("pH Correlation with Depth")
         fig = px.scatter(
         clean_df, 
-        x="Temperature (C)", 
+        x="Total Water Column (m)", 
         y="pH"
         )
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
-        st.subheader("Total Meters in Depth on Map")
+        st.subheader("Temperature in Celsius on Map")
         fig = px.scatter(
-        clean_df, x="latitude", y="longitude", color="Total Water Column (m)", size="ODO (mg/L)", hover_data=["pH"])
+        clean_df, x="latitude", y="longitude", color="Temperature (C)", size="ODO (mg/L)", hover_data=["pH"])
         event = st.plotly_chart(fig, key="iris", on_select="rerun")
 
     if st.button("Load Plotly Chart 3"):
-        st.subheader("IDK")
+        st.subheader("Broad Data Display")
         st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+
+    if st.button("Load Plotly Chart 4"):
+        st.subheader("Oxygen Levels on Detailed Map")
+        fig = px.scatter_mapbox(clean_df,
+                            lat="latitude",
+                            lon="longitude",
+                            hover_name="Total Water Column (m)",
+                            hover_data=["ODO (mg/L)"],
+                            color="ODO (mg/L)", 
+                            size="ODO (mg/L)", 
+                            mapbox_style="open-street-map",
+                            zoom=17) 
+        st.plotly_chart(fig, use_container_width=True)
    
 with tab4:
     response = requests.get(base_url + "/api/stats").json()
