@@ -78,7 +78,7 @@ st.markdown("""
     color: 4DB4F0;
     }
     .stTabs [aria-selected="false"] {
-    color: #ffffff;
+    color: #1C349E;
     }
     </style>
 """, unsafe_allow_html=True) 
