@@ -25,46 +25,67 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
     <style>
-    /* Set background color for the whole app */
+    /* ===== Light mode base ===== */
     .stApp {
         background-color: #FBF7F2;
-    }  
-    /* Make widgets pop */
+    }
     .stButton>button {
         border-radius: 10px;
         font-weight: 600;
-    }      
-    /* Button styling */
+    }
     .stButton > button {
-    color: white;
-    background-color: #FACF32;       /* primary color */
-    border: none;
-    border-radius: 9999px;           /* pill shape */
-    padding: 0.6rem 1.2rem;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
+        color: white;
+        background-color: #FACF32;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
     }
-    /* Hover effect */
     .stButton > button:hover {
-    background-color: #FAC141;
-    transform: scale(1.02);
+        background-color: #FAC141;
+        transform: scale(1.02);
     }
-    /* Secondary-style button */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
-    background-color: #A2B7DE;       
+        background-color: #A2B7DE;       
     }
-    /* Title style */
     .header {
-    color: #1C349E;
-    text-align: center;
-    padding: 2.5rem 1rem;
-    }   
-    /* Styling for tabs */
+        color: #1C349E;
+        text-align: center;
+        padding: 2.5rem 1rem;
+    }
     .stTabs [aria-selected="true"] {
         color: #FAC141;
     }
     .stTabs [aria-selected="false"] {
-    color: #000000
+        color: #000000;
+    }
+    
+    /* ===== Dark mode overrides ===== */
+    @media (prefers-color-scheme: dark) {
+        .stApp {
+            background-color: #121212;
+        }
+        .header {
+            color: #FACF32;  /* bright yellow for contrast */
+        }
+        .stButton > button {
+            background-color: #FACF32;
+            color: black;  /* black text on yellow button */
+        }
+        .stButton > button:hover {
+            background-color: #FAC141;
+        }
+        button[data-baseweb="button"]:has(span:contains("Secondary")) {
+            background-color: #3A4B73; /* deeper secondary for dark */
+            color: white;
+        }
+        .stTabs [aria-selected="true"] {
+            color: #FAC141;
+        }
+        .stTabs [aria-selected="false"] {
+            color: #E0E0E0;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
