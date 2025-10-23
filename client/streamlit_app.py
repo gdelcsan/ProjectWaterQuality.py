@@ -60,13 +60,7 @@ st.markdown("""
     /* Secondary-style button */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
     background-color: #A2B7DE;       
-    }
-    /* Title style */
-    .header {
-    color: #000000;
-    text-align: center;
-    padding: 2.5rem 1rem;
-    }    
+    } 
     /* Styling for tabs */
     .stTabs [aria-selected="true"] {
         color: #FAC141;
