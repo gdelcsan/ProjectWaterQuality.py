@@ -1,8 +1,3 @@
-import os
-import threading
-import time
-from contextlib import suppress
-
 import streamlit as st
 import requests
 import pandas as pd
@@ -12,51 +7,6 @@ from numpy.random import default_rng as rng
 from flask import Flask, jsonify
 from pymongo import MongoClient
 
-# Config
-FLASK_HOST = "127.0.0.1"
-FLASK_PORT = int(os.getenv("FLASK_PORT", "5000"))
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-DB_NAME = os.getenv("MONGO_DB", "mydatabase")
-COLL_NAME = os.getenv("MONGO_COLL", "users")
-
-# Create Flask app and Mongo client
-flask_app = Flask(__name__)
-mongo_client = MongoClient(MONGO_URI)
-db = mongo_client[DB_NAME]
-collection = db[COLL_NAME]
-
-@flask_app.get("/health")
-def health():
-    return {"status": "ok"}, 200
-
-@flask_app.get("/data")
-def get_data():
-    # Return all docs without _id
-    docs = list(collection.find({}, {"_id": 0}))
-    return jsonify(docs), 200
-
-def run_flask():
-    # Use Flask’s built-in server for dev. (For prod, run Flask separately.)
-    flask_app.run(host=FLASK_HOST, port=FLASK_PORT, debug=False, use_reloader=False)
-
-def ensure_flask_running():
-    """Start Flask once per Streamlit session and wait until it’s responsive."""
-    if "flask_started" not in st.session_state:
-        st.session_state.flask_started = False
-
-    if not st.session_state.flask_started:
-        t = threading.Thread(target=run_flask, daemon=True)
-        t.start()
-        # Wait for the /health endpoint to come up
-        health_url = f"http://{FLASK_HOST}:{FLASK_PORT}/health"
-        for _ in range(50):  # ~5s max
-            with suppress(Exception):
-                r = requests.get(health_url, timeout=0.2)
-                if r.ok:
-                    st.session_state.flask_started = True
-                    break
-            time.sleep(0.1)
-            
 st.set_page_config(layout="wide")
 
 st.markdown("""
