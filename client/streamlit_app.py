@@ -66,14 +66,25 @@ st.markdown("""
     .stTabs [aria-selected="false"] {
     color: #000000
     }
-    /* Dark mode: ONLY text color overrides */
-    @media (prefers-color-scheme: dark) {
-        h1, h2, h3, h4, h5, h6 {
-            color: #000000 !important;
-        }
-        .header {
-            color: #FACF32 !important;
-        }
+    html[data-theme="dark"] h3,
+body[data-theme="dark"] h3,
+@media (prefers-color-scheme: dark) {
+  .stApp h3,
+  .stMarkdown h3,
+  [data-testid="stMarkdownContainer"] h3 {
+    color: #000000 !important;
+  }
+}
+/*
+html[data-theme="dark"] h2,
+body[data-theme="dark"] h2,
+@media (prefers-color-scheme: dark) {
+  .stApp h2,
+  .stMarkdown h2,
+  [data-testid="stMarkdownContainer"] h2 {
+    color: #000000 !important;
+  }
+}
     }
     </style>
 """, unsafe_allow_html=True) 
