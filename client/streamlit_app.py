@@ -57,6 +57,11 @@ st.markdown("""
     background-color: #FAC141;
     transform: scale(1.02);
     }
+    /* Title style */
+    .header {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    }   
     /* Secondary-style button */
     button[data-baseweb="button"]:has(span:contains("Secondary")) {
     background-color: #A2B7DE;       
