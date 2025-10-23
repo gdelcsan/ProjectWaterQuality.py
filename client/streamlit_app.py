@@ -32,7 +32,7 @@ st.markdown("""
         color: #1C349E !important;
     }
     [data-testid="stSidebar"] {
-        background-color: #F2EBE1;         
+        background-color: #B8E3FC;         
     }
     .stApp {
         background-color: #FBF7F2;
