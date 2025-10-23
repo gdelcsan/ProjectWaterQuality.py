@@ -63,7 +63,7 @@ st.markdown("""
     }
     /* Title style */
     .header {
-    color: #1C349E;
+    color: #000000;
     text-align: center;
     padding: 2.5rem 1rem;
     }    
