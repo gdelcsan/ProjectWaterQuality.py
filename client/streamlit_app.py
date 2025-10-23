@@ -70,7 +70,7 @@ st.markdown("""
     @media (prefers-color-scheme: dark) {
         h1, h2, h3, h4, h5, h6,
         p, span, div, label {
-            color: #FFFFFF !important;
+            color: #000000 !important;
         }
         .header {
             color: #FACF32 !important;
