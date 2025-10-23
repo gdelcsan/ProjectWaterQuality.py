@@ -33,13 +33,12 @@ st.markdown("""
         background-image: linear-gradient(120deg, #4158C4, #4DB4F0);             
         border-right: 1px solid rgba(27,31,35,0.1);  
     }
+    section[data-testid="stSidebar"] h1, h2, h3 {
+    color: white;
+    }
     .stApp {
         background-color: #B8E3FC;
     }   
-    section[data-testid="stSidebar"] div[data-baseweb="select"] * { 
-    color: white !important; 
-    background-color: #222 !important; 
-    }
     /* Make widgets pop */
     .stButton>button {
         border-radius: 10px;
