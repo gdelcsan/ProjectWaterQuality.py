@@ -54,7 +54,7 @@ st.markdown("""
     }
     /* Hover effect */
     .stButton > button:hover {
-    background-color: #FAC141;
+    background-color: #4DB4F0;
     transform: scale(1.02);
     }
     /* Title style */
