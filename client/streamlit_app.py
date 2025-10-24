@@ -68,8 +68,7 @@ st.markdown("""
         background-clip: text;
     }
 
-    /* Tabs (fixed missing #) */
-    .stTabs [aria-selected="true"] { color: #4DB4F0; }
+    /* Tabs */
     .stTabs [aria-selected="false"] { color: #000000; }
     </style>
 """, unsafe_allow_html=True)
