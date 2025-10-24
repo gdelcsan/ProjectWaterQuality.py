@@ -42,9 +42,10 @@ st.markdown("""
 
     /* Buttons */
     div.stButton {
-    display: inline-block; 
-    margin-right: 6px;
-    margin-bottom: 0;
+    display: flex; 
+    justify-content: flex-start;
+    gap: 6px; 
+    margin-bottom: 10px;
     }
 
     div.stButton > button {
