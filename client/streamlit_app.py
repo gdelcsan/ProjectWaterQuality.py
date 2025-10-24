@@ -93,7 +93,7 @@ clean_df = pd.read_csv("./database/cleaned_data.csv")
 st.sidebar.header("Control Panel")
 
 # 1. Temperature Range Slider
-TEMP_COL = 'Temperature (°C)'
+TEMP_COL = 'Temperature (C)'
 temp_min_val = min(
     float(df1[TEMP_COL].min()),
     float(df2[TEMP_COL].min()),
@@ -111,7 +111,7 @@ temp_max_val = max(
 )
 
 temp_min, temp_max = st.sidebar.slider(
-    "Temperature range (°C)",
+    "Temperature (C)",
     temp_min_val,
     temp_max_val,
     (temp_min_val, temp_max_val) # Default to full range
@@ -143,7 +143,7 @@ sal_min, sal_max = st.sidebar.slider(
 )
 
 # 3. ODO Range Slider
-ODO_COL = 'ODO mg/L'
+ODO_COL = 'ODO (mg/L)'
 odo_min_val = min(
     float(df1[ODO_COL].min()),
     float(df2[ODO_COL].min()),
