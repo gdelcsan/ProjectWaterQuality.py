@@ -386,7 +386,7 @@ with tab3:
             hover_cols = st.multiselect(
             label="Hover data (optional)",
             options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
-            default=["(none)"],
+            default=[],
             label_visibility="collapsed" 
             )
 
