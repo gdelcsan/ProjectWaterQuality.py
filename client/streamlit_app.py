@@ -70,10 +70,6 @@ st.markdown("""
     -webkit-text-fill-color: transparent;
     background-clip: text;
     }
-    /* Secondary-style button */
-    button[data-baseweb="button"]:has(span:contains("Secondary")) {
-    background-color: #A2B7DE;       
-    } 
     .stTabs [aria-selected="true"] {
     color: 4DB4F0;
     }
