@@ -337,14 +337,14 @@ with tab3:
     chart_type = st.session_state["chart_type"]
     st.caption(f"Active chart: **{chart_type}**")
 
-    st.markdown("<p style='color:black; font-weight:600;'>Color (optional)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
     label="",
     options=["(none)"] + all_cols,
     index=0
     )
 
-    st.markdown("<p style='color:black; font-weight:600;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
     label="",
     options=["(none)"] + num_cols,
