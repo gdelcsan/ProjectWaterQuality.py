@@ -308,7 +308,7 @@ with tab3:
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
     if "chart_type" not in st.session_state:
-        st.session_state["chart_type"] = "Scatter"  # default
+        st.session_state["chart_type"] = "Map"  # default
 
     bcols = st.columns(4)
     if bcols[0].button("Scatter"):
@@ -320,8 +320,8 @@ with tab3:
     if bcols[3].button("Map"):
         st.session_state["chart_type"] = "Map"
 
-    # Show which is active
-    st.caption(f"Active chart: **{st.session_state['chart_type']}**")
+    chart_type = st.session_state["chart_type"]
+    st.caption(f"Active chart: **{chart_type}**")
 
     # Optional encodings used by multiple chart types
     color_opt = st.selectbox("Color (optional)", ["(none)"] + all_cols, index=0)
