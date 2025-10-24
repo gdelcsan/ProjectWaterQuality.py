@@ -33,9 +33,6 @@ st.markdown("""
         background-image: linear-gradient(120deg, #4158C4, #4DB4F0);
         border-right: 1px solid rgba(27,31,35,0.1);  
     }
-    section[data-testid="stSidebar"] div[data-testid="stSlider"] > div > div > div {
-        color: #ffffff !important;        
-    }
     section[data-testid="stSidebar"] label {
     color: white;
     }
