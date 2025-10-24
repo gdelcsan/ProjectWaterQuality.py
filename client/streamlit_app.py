@@ -325,13 +325,13 @@ with tab3:
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
     if st.button("Scatter", key="btn_scatter"):
-    st.session_state["chart_type"] = "Scatter"
+        st.session_state["chart_type"] = "Scatter"
     if st.button("Line", key="btn_line"):
-    st.session_state["chart_type"] = "Line"
+        st.session_state["chart_type"] = "Line"
     if st.button("Bar", key="btn_bar"):
-    st.session_state["chart_type"] = "Bar"
+        st.session_state["chart_type"] = "Bar"
     if st.button("Map", key="btn_map"):
-    st.session_state["chart_type"] = "Map"
+        st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
     st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
