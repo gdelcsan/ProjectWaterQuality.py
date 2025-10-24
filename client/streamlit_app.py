@@ -57,6 +57,14 @@ st.markdown("""
         transform: scale(1.02);
     }
 
+    .stButton {
+    display: inline-flex !important; 
+    align-items: center;
+    width: auto !important;
+    margin-right: 6px;
+    margin-bottom: 0;
+    }
+
     /* Title gradient */
     .header {
         text-align: center;
