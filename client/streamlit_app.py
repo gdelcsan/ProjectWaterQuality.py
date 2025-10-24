@@ -94,7 +94,21 @@ st.sidebar.header("Control Panel")
 
 # 1. Temperature Range Slider
 TEMP_COL = 'Temperature (c)'
-temp_min_val, temp_max_val = float(df1[TEMP_COL].min()), float(df1[TEMP_COL].max())
+temp_min_val = min(
+    float(df1[TEMP_COL].min()),
+    float(df2[TEMP_COL].min()),
+    float(df3[TEMP_COL].min()),
+    float(df4[TEMP_COL].min()),
+    float(clean_df[TEMP_COL].min())
+)
+
+temp_max_val = max(
+    float(df1[TEMP_COL].max()),
+    float(df2[TEMP_COL].max()),
+    float(df3[TEMP_COL].max()),
+    float(df4[TEMP_COL].max()),
+    float(clean_df[TEMP_COL].max())
+)
 
 temp_min, temp_max = st.sidebar.slider(
     "Temperature range (°C)",
@@ -105,7 +119,21 @@ temp_min, temp_max = st.sidebar.slider(
 
 # 2. Salinity Range Slider
 SAL_COL = 'pH'
-sal_min_val, sal_max_val = float(df1[SAL_COL].min()), float(df1[SAL_COL].max())
+sal_min_val = min(
+    float(df1[SAL_COL].min()),
+    float(df2[SAL_COL].min()),
+    float(df3[SAL_COL].min()),
+    float(df4[SAL_COL].min()),
+    float(clean_df[SAL_COL].min())
+)
+
+sal_max_val = max(
+    float(df1[SAL_COL].max()),
+    float(df2[SAL_COL].max()),
+    float(df3[SAL_COL].max()),
+    float(df4[SAL_COL].max()),
+    float(clean_df[SAL_COL].max())
+)
 
 sal_min, sal_max = st.sidebar.slider(
     "Salinity range",
@@ -116,7 +144,21 @@ sal_min, sal_max = st.sidebar.slider(
 
 # 3. ODO Range Slider
 ODO_COL = 'ODO mg/L'
-odo_min_val, odo_max_val = float(df1[ODO_COL].min()), float(df1[ODO_COL].max())
+odo_min_val = min(
+    float(df1[ODO_COL].min()),
+    float(df2[ODO_COL].min()),
+    float(df3[ODO_COL].min()),
+    float(df4[ODO_COL].min()),
+    float(clean_df[ODO_COL].min())
+)
+
+odo_max_val = max(
+    float(df1[ODO_COL].max()),
+    float(df2[ODO_COL].max()),
+    float(df3[ODO_COL].max()),
+    float(df4[ODO_COL].max()),
+    float(clean_df[ODO_COL].max())
+)
 
 odo_min, odo_max = st.sidebar.slider(
     "ODO range (mg/L)",
