@@ -39,14 +39,6 @@ st.markdown("""
     section[data-testid="stSidebar"] label { color: white; }
 
     .stApp { background-color: #FBF7F2; }
-
-    /* Container for the buttons */
-    .stButton {
-        display: flex;
-        justify-content: flex-end;  
-        gap: 6px;                  
-        margin-bottom: 10px;
-    }
     
     /* Buttons */
     .stButton>button { border-radius: 10px; font-weight: 600; }
@@ -63,6 +55,14 @@ st.markdown("""
         background-color: #1C349E;
         background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
         transform: scale(1.02);
+    }
+
+    /* Container for the buttons */
+    .stButton {
+        display: flex;
+        justify-content: flex-end;  
+        gap: 6px;                  
+        margin-bottom: 10px;
     }
 
     /* Title gradient */
