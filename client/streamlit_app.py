@@ -70,7 +70,21 @@ st.markdown("""
     }
 
     /* Tabs */
-    .stTabs [aria-selected="false"] { color: #000000; }
+    .stTabs [aria-selected="false"] { color: #000000; 
+    }
+
+    /* Make dropdown background white */
+    div[data-baseweb="select"] > div {
+        background-color: white !important;
+        color: black !important;
+        border-radius: 8px !important;
+        border: 1px solid #ccc !important;
+    }
+    
+    /* Caption text in black */
+    .stCaption, div[data-testid="stCaptionContainer"] p {
+        color: black !important;
+    }
     
     </style>
 """, unsafe_allow_html=True)
@@ -323,10 +337,18 @@ with tab3:
     chart_type = st.session_state["chart_type"]
     st.caption(f"Active chart: **{chart_type}**")
 
-    # Optional encodings used by multiple chart types
-    color_opt = st.selectbox("Color (optional)", ["(none)"] + all_cols, index=0)
+    st.markdown("<p style='color:black; font-weight:600;'>Color (optional)</p>", unsafe_allow_html=True)
+    color_opt = st.selectbox(
+    label="",
+    options=["(none)"] + all_cols,
+    index=0
+    )
+
+    st.markdown("<p style='color:black; font-weight:600;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
-        "Size (optional/numeric)", ["(none)"] + num_cols, index=0
+    label="",
+    options=["(none)"] + num_cols,
+    index=0
     )
 
     def _opt_kwargs():
