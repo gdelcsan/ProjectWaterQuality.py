@@ -41,7 +41,7 @@ def cleaning_dataset():
     df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
     
     # Columns for Outliers
-    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)', 'Date m,d,y  ']
+    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
 
     # Using Formula
     df_zscore = (df[outlier_columns] - df[outlier_columns].mean()) / df[outlier_columns].std(ddof=0)
