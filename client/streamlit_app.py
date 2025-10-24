@@ -307,12 +307,26 @@ with tab3:
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    chart_type = st.selectbox("Chart type", ["Scatter", "Line", "Bar", "Map"], index=0)
+    if "chart_type" not in st.session_state:
+        st.session_state["chart_type"] = "Scatter"  # default
+
+    bcols = st.columns(4)
+    if bcols[0].button("Scatter"):
+        st.session_state["chart_type"] = "Scatter"
+    if bcols[1].button("Line"):
+        st.session_state["chart_type"] = "Line"
+    if bcols[2].button("Bar"):
+        st.session_state["chart_type"] = "Bar"
+    if bcols[3].button("Map"):
+        st.session_state["chart_type"] = "Map"
+
+    # Show which is active
+    st.caption(f"Active chart: **{st.session_state['chart_type']}**")
 
     # Optional encodings used by multiple chart types
     color_opt = st.selectbox("Color (optional)", ["(none)"] + all_cols, index=0)
     size_opt = st.selectbox(
-        "Size (optional, numeric)", ["(none)"] + num_cols, index=0
+        "Size (optional/numeric)", ["(none)"] + num_cols, index=0
     )
 
     def _opt_kwargs():
@@ -324,7 +338,6 @@ with tab3:
         return kwargs
 
     if chart_type != "Map":
-        # X / Y for non-map charts
         x_col = st.selectbox("X-axis", all_cols, index=0)
         y_col = st.selectbox("Y-axis", all_cols, index=1 if len(all_cols) > 1 else 0)
 
@@ -338,7 +351,6 @@ with tab3:
         st.plotly_chart(fig, use_container_width=True)
 
     else:
-        # Map chart
         LAT_ALIASES = ["Latitude", "Lat", "latitude", "lat"]
         LON_ALIASES = ["Longitude", "Lon", "Lng", "longitude", "lon", "lng"]
 
@@ -356,7 +368,7 @@ with tab3:
                 [c for c in all_cols if c not in {lat_col, lon_col}],
                 default=[]
             )
-            zoom = st.slider("Map zoom", 1, 18, value=12)
+            zoom = st.slider("Map zoom", 1, 18, value=17)
 
             fig = px.scatter_mapbox(
                 df,
