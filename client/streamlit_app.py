@@ -93,7 +93,7 @@ clean_df = pd.read_csv("./database/cleaned_data.csv")
 st.sidebar.header("Control Panel")
 
 # 1. Temperature Range Slider
-TEMP_COL = 'Temperature (c)'
+TEMP_COL = 'Temperature (°C)'
 temp_min_val = min(
     float(df1[TEMP_COL].min()),
     float(df2[TEMP_COL].min()),
