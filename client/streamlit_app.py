@@ -36,7 +36,7 @@ st.markdown("""
     color: white;
     }
     .stApp {
-        background-color: #F5F5DC;
+        background-color: #FBF7F2;
     }   
     /* Make widgets pop */
     .stButton>button {
