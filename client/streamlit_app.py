@@ -41,12 +41,11 @@ st.markdown("""
     .stApp { background-color: #FBF7F2; }
 
     /* Buttons */
-    .stButton>button { border-radius: 10px; font-weight: 600; }
     .stButton > button {
         color: white;
         background-color: #4DB4F0;
         border: none;
-        border-radius: 9999px;
+        border-radius: 10px;
         padding: 0.6rem 1.2rem;
         font-weight: 600;
         transition: all 0.2s ease-in-out;
