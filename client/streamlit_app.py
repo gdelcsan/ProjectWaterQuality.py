@@ -208,14 +208,17 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
-    st.write(df2)
-    st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
-    st.write(df1)
-    st.markdown('<h3 style="color:#000000;">October 7, 2022</h3>', unsafe_allow_html=True)
-    st.write(df4)
-    st.markdown('<h3 style="color:#000000;">November 16, 2022</h3>', unsafe_allow_html=True)
-    st.write(df3)
+    if st.button("2021 Datasets"):
+        st.markdown('<h3 style="color:#000000;">October 21</h3>', unsafe_allow_html=True)
+        st.write(df2)
+        st.markdown('<h3 style="color:#000000;">December 16</h3>', unsafe_allow_html=True)
+        st.write(df1)
+    
+    if st.button("2022 Datasets"):
+        st.markdown('<h3 style="color:#000000;">October 7</h3>', unsafe_allow_html=True)
+        st.write(df4)
+        st.markdown('<h3 style="color:#000000;">November 16</h3>', unsafe_allow_html=True)
+        st.write(df3)
 
 with tab2:
     st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
