@@ -1,28 +1,18 @@
-import os
-import threading
-import time
-from contextlib import suppress
 
 import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-from numpy.random import default_rng as rng
-
-from flask import Flask, jsonify
-from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
 # configuration
-FLASK_HOST = "127.0.0.1"
-FLASK_PORT = 5050
-BASE_URL = f"http://{FLASK_HOST}:{FLASK_PORT}"
-
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-MONGO_DB = os.getenv("MONGO_DB", "biscaynebay")
-MONGO_COLL = os.getenv("MONGO_COLL", "readings")
+load_dotenv()
+HOST = os.getenv('FLASK_HOST')
+PORT = os.getenv('FLASK_PORT')
+BASE_URL = f"http://{HOST}:{PORT}"
 
 st.set_page_config(layout="wide")
-
 st.markdown("""
     <style>
     /* Set background color for the whole app */
@@ -117,74 +107,6 @@ odo_min, odo_max = st.sidebar.slider(
 limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
 page = st.sidebar.number_input("Page number", 1, value=1)
 
-flask_app = Flask(__name__)
-
-try:
-    mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=500)
-    _ = mongo_client.server_info()  # quick ping
-    mongo_db = mongo_client[MONGO_DB]
-    mongo_coll = mongo_db[MONGO_COLL]
-    MONGO_OK = True
-except Exception:
-    mongo_client = None
-    mongo_db = None
-    mongo_coll = None
-    MONGO_OK = False
-
-@flask_app.get("/health")
-def health():
-    status = {"status": "ok", "mongo": "up" if MONGO_OK else "down"}
-    return jsonify(status), 200
-
-@flask_app.get("/api/stats")
-def api_stats():
-    """
-    Returns basic numeric stats from the cleaned dataset.
-    You can customize which columns to summarize below.
-    """
-    df = clean_df.copy()
-
-    # Pick numeric columns automatically
-    num_df = df.select_dtypes(include="number")
-
-    # If you want specific columns only, uncomment and adjust:
-    # num_df = df[["pH", "Temperature (C)", "ODO (mg/L)", "Total Water Column (m)"]].apply(pd.to_numeric, errors="coerce")
-
-    summary = (
-        num_df.agg(["count", "mean", "std", "min", "max"])
-        .transpose()
-        .reset_index()
-        .rename(columns={"index": "metric"})
-    )
-    # Round for readability
-    for col in ["mean", "std", "min", "max"]:
-        if col in summary.columns:
-            summary[col] = summary[col].round(3)
-
-    return jsonify(summary.to_dict(orient="records")), 200
-
-def _run_flask():
-    # dev server; for production run Flask separately (gunicorn/uvicorn), not threaded in Streamlit
-    flask_app.run(host=FLASK_HOST, port=FLASK_PORT, debug=False, use_reloader=False)
-
-def _ensure_flask_running():
-    """Start Flask once per Streamlit session and wait until it responds."""
-    if "flask_started" not in st.session_state:
-        st.session_state.flask_started = False
-
-    if not st.session_state.flask_started:
-        t = threading.Thread(target=_run_flask, daemon=True)
-        t.start()
-        # wait for /health to be available
-        health_url = f"{BASE_URL}/health"
-        for _ in range(60):  # ~6s max
-            with suppress(Exception):
-                r = requests.get(health_url, timeout=0.25)
-                if r.ok:
-                    st.session_state.flask_started = True
-                    break
-            time.sleep(0.1)
-
 # Streamlit UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
@@ -243,8 +165,6 @@ with tab3:
         st.plotly_chart(fig, use_container_width=True)
 
 with tab4:
-    # Start Flask (if not already) and call the API safely
-    _ensure_flask_running()
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
         r.raise_for_status()

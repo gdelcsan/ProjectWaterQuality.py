@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, abort
-from mongoDB import upload, query
+from mongoDB import upload, query, mongo_OK
 import pandas as pd
 
 app = Flask(__name__)
@@ -32,7 +32,8 @@ def index():
 
 @app.route('/api/health')
 def status():
-    return { "status": "ok" }
+    status = {"status": "OK", "mongoDB": "ONLINE" if mongo_OK else "OFFLINE"}
+    return jsonify(status), 200
 
 @app.route('/api/cleandataset',methods=['GET'])
 def cleaning_dataset():

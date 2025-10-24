@@ -5,13 +5,18 @@ import os
 import time
 
 load_dotenv()
-username = os.getenv('MONGO_USR')
-password = os.getenv('MONGO_PSS')
-domain = os.getenv('MONGO_DOMAIN')
-uri = "mongodb+srv://" + username + ":" + password + domain + "/?retryWrites=true&w=majority&appName=bbp"
-client = MongoClient(uri, server_api=ServerApi('1'))
-db = client['water_quality_data']
-collection = db['asv_1']
+try:
+    USERNAME = os.getenv('MONGO_USR')
+    PASSWORD = os.getenv('MONGO_PSS')
+    DOMAIN = os.getenv('MONGO_DOMAIN')
+    uri = "mongodb+srv://" + USERNAME + ":" + PASSWORD + DOMAIN + "/?retryWrites=true&w=majority&appName=bbp"
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    db = client['water_quality_data']
+    collection = db['asv_1']
+    mongo_OK = True
+except Exception:
+    mongo_OK = False
+    print(f"Error connecting to Mongo: {Exception}")
 
 # Create a new client and connect to the server
 def upload(data):
@@ -65,3 +70,4 @@ def query(params):
     else:
         return ({"count": count, "items": cursor.to_list()})
     
+
