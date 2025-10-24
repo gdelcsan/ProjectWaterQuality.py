@@ -330,14 +330,14 @@ with tab3:
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
-    st.caption(f"Active chart: **{chart_type}**")
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
 
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
     label="Color (optional)",
     options=["(none)"] + all_cols,
     index=0,
-    label_visibility="collapsed"  # 👈 removes the default label *and* its extra space
+    label_visibility="collapsed" 
     )
 
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
@@ -345,7 +345,7 @@ with tab3:
     label="Size (optional/numeric)",
     options=["(none)"] + num_cols,
     index=0,
-    label_visibility="collapsed"  # no padding above
+    label_visibility="collapsed" 
     )
 
     def _opt_kwargs():
@@ -385,9 +385,9 @@ with tab3:
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Hover data (optional)</p>", unsafe_allow_html=True)
             hover_cols = st.multiselect(
             label="Hover data (optional)",
-            options=[c for c in all_cols if c not in {lat_col, lon_col}],
-            default=[],
-            label_visibility="collapsed"  # 👈 removes extra label spacing
+            options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
+            default=["(none)"],
+            label_visibility="collapsed" 
             )
 
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Map zoom</p>", unsafe_allow_html=True)
@@ -396,7 +396,7 @@ with tab3:
             min_value=1,
             max_value=18,
             value=17,
-            label_visibility="collapsed"  # 👈 also removes padding
+            label_visibility="collapsed" 
             )
 
             fig = px.scatter_mapbox(
@@ -409,39 +409,6 @@ with tab3:
             )
             fig.update_layout(mapbox_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
-    
-    if st.button("Load Plotly Chart 1"):
-        st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
-        fig = px.scatter(selected_df, x="Total Water Column (m)", y="pH")
-        st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-
-    if st.button("Load Plotly Chart 2"):
-        st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
-        fig = px.scatter(
-            selected_df, x="Latitude", y="Longitude",
-            color="Temperature (c)", size="ODO mg/L",
-            hover_data=["pH"]
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    if st.button("Load Plotly Chart 3"):
-        st.markdown('<h3 style="color:#000000;">Broad Data Display</h3>', unsafe_allow_html=True)
-        st.bar_chart(selected_df , x="pH", y="ODO mg/L", color="Temperature (c)", stack=False)
-
-    if st.button("Load Plotly Chart 4"):
-        st.markdown('<h3 style="color:#000000;">Oxygen Levels on Map</h3>', unsafe_allow_html=True)
-        fig = px.scatter_mapbox(
-            selected_df,
-            lat="Latitude", lon="Longitude",
-            hover_name="Total Water Column (m)",
-            hover_data=["ODO mg/L"],
-            color="ODO mg/L", size="ODO mg/L",
-            mapbox_style="open-street-map",
-            zoom=17
-        )
-        st.plotly_chart(fig, use_container_width=True)
-
-    #st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
 
 with tab4:
     # Start Flask (if not already) and call the API safely
