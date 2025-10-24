@@ -132,4 +132,4 @@ def pullOutliers():
 if __name__ == '__main__':
     load_dotenv()
     PORT = os.getenv('FLASK_PORT')
-    app.run(debug=True, port=PORT)
+    app.run(host='0.0.0.0', debug=True)
