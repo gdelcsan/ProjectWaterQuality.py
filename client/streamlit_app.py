@@ -44,7 +44,6 @@ st.markdown("""
     div.stButton {
     display: flex; 
     justify-content: flex-start;
-    gap: 6px; 
     margin-bottom: 10px;
     }
 
