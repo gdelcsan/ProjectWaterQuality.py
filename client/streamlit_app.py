@@ -57,6 +57,7 @@ st.markdown("""
     /* Hover effect */
     .stButton > button:hover {
     background-color: #1C349E;
+    background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
     transform: scale(1.02);
     }
     /* Title style */
