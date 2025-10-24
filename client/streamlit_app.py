@@ -322,16 +322,16 @@ with tab3:
     spacer, c1, c2, c3, c4 = st.columns([1, 0.12, 0.12, 0.12, 0.12])
 
     with c1:
-    if st.button("Scatter", key="btn_scatter"):
+        if st.button("Scatter", key="btn_scatter"):
         st.session_state["chart_type"] = "Scatter"
     with c2:
-    if st.button("Line", key="btn_line"):
+        if st.button("Line", key="btn_line"):
         st.session_state["chart_type"] = "Line"
     with c3:
-    if st.button("Bar", key="btn_bar"):
+        if st.button("Bar", key="btn_bar"):
         st.session_state["chart_type"] = "Bar"
     with c4:
-    if st.button("Map", key="btn_map"):
+        if st.button("Map", key="btn_map"):
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
