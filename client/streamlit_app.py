@@ -129,62 +129,6 @@ odo_min, odo_max = st.sidebar.slider(
 limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
 page = st.sidebar.number_input("Page number", 1, value=1)
 
-
-#OG Filter
-"""
-filtered_data = df[
-    (df[TEMP_COL] >= temp_min) &
-    (df[TEMP_COL] <= temp_max) &
-    (df[SAL_COL] >= sal_min) &
-    (df[SAL_COL] <= sal_max) &
-    (df[ODO_COL] >= odo_min) &
-    (df[ODO_COL] <= odo_max)
-].copy()
-
-#Cleaned filter
-clean_filtered_data = clean_df[
-    (clean_df[TEMP_COL] >= temp_min) &
-    (clean_df[TEMP_COL] <= temp_max) &
-    (clean_df[SAL_COL] >= sal_min) &
-    (clean_df[SAL_COL] <= sal_max) &
-    (clean_df[ODO_COL] >= odo_min) &
-    (clean_df[ODO_COL] <= odo_max)
-].copy()
-
-#Pagination
-total_rows = len(filtered_data)
-total_clean_rows = len(clean_filtered_data)
-
-#starting index for the current page
-start_idx = (page - 1) * limit
-clean_start_idx = (page - 1) * limit
-
-#ending index
-end_idx = start_idx + limit
-clean_end_idx = clean_start_idx + limit
-
-# bounds for OG
-if start_idx >= total_rows and total_rows > 0:
-    st.sidebar.warning(f"Page {page} is empty for Original Dataset. Resetting to Page 1.")
-    start_idx = 0
-    page = 1
-elif total_rows == 0:
-    st.sidebar.info("The applied filters returned no data in Original Dataset.")
-    start_idx = 0
-
-#bounds for Cleaned
-if clean_start_idx >= total_clean_rows and total_clean_rows > 0:
-    clean_start_idx = (total_clean_rows // limit) * limit
-elif total_clean_rows == 0:
-    st.sidebar.info("The applied filters returned no data in Clean Dataset.")
-    clean_start_idx = 0
-
-#Filtered OG data and Filtered Cleaned data ## USE THESE AND NOT THE UPLOADED ON TOP TO
-#USE FILTER
-og_filtered_page = filtered_data.iloc[start_idx:end_idx]
-cleaned_filtered_page = clean_filtered_data.iloc[clean_start_idx:clean_end_idx]
-"""
-
 flask_app = Flask(__name__)
 
 try:
