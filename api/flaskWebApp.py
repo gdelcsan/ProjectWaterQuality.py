@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request, abort
 from mongoDB import upload, query, mongo_OK
 import pandas as pd
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
@@ -128,4 +130,6 @@ def pullOutliers():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5050)
+    load_dotenv()
+    PORT = os.getenv('FLASK_PORT')
+    app.run(debug=True, port=PORT)
