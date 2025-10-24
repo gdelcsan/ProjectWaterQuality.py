@@ -226,6 +226,8 @@ with tab2:
         st.write(clean_df)
 
 with tab3:
+    st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
+    
     if st.button("Load Plotly Chart 1"):
         st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
         fig = px.scatter(clean_df, x="Total Water Column (m)", y="pH")
@@ -256,6 +258,8 @@ with tab3:
             zoom=17
         )
         st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
 
 with tab4:
     # Start Flask (if not already) and call the API safely
