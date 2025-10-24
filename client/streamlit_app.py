@@ -301,9 +301,6 @@ with tab1:
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
 
-    with tab4:
-    df = selected_df.copy()
-
     # Common helpers
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
