@@ -213,25 +213,25 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
     st.write(df2)
-    st.subheader("December 16, 2021")
+    st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
     st.write(df1)
-    st.subheader("October 7, 2022")
+    st.markdown('<h3 style="color:#000000;">October 7, 2022</h3>', unsafe_allow_html=True)
     st.write(df4)
-    st.subheader("November 16, 2022")
+    st.markdown('<h3 style="color:#000000;">November 16, 2022</h3>', unsafe_allow_html=True)
     st.write(df3)
 
 with tab2:
-    st.subheader("Clean Dataset")
+    st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
     st.write(clean_df)
 
 with tab3:
     if st.button("Load Plotly Chart 1"):
-        st.subheader("pH Correlation with Depth")
+        st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
         fig = px.scatter(clean_df, x="Total Water Column (m)", y="pH")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
-        st.subheader("Temperature in Celsius on Map")
+        st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter(
             clean_df, x="latitude", y="longitude",
             color="Temperature (C)", size="ODO (mg/L)",
@@ -240,11 +240,11 @@ with tab3:
         st.plotly_chart(fig, use_container_width=True)
 
     if st.button("Load Plotly Chart 3"):
-        st.subheader("Broad Data Display")
+        st.markdown('<h3 style="color:#000000;">Broad Data Display</h3>', unsafe_allow_html=True)
         st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
 
     if st.button("Load Plotly Chart 4"):
-        st.subheader("Oxygen Levels on Detailed Map")
+        st.markdown('<h3 style="color:#000000;">Oxygen Levels on Detailed Map</h3>', unsafe_allow_html=True)
         fig = px.scatter_mapbox(
             clean_df,
             lat="latitude", lon="longitude",
