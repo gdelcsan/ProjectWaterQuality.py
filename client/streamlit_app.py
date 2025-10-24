@@ -57,14 +57,6 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    div.stButton {
-    display: inline-flex !important;  
-    align-items: center;
-    width: auto !important;     
-    margin-right: 6px;    
-    margin-bottom: 0;
-    }
-
     /* Title gradient */
     .header {
         text-align: center;
@@ -324,13 +316,17 @@ with tab3:
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    if st.button("Scatter", key="btn_scatter"):
+    if "chart_type" not in st.session_state:
+        st.session_state["chart_type"] = "Map"
+        
+    bcols = st.columns(4)
+    if bcols[0].button("Scatter"):
         st.session_state["chart_type"] = "Scatter"
-    if st.button("Line", key="btn_line"):
+    if bcols[1].button("Line"):
         st.session_state["chart_type"] = "Line"
-    if st.button("Bar", key="btn_bar"):
+    if bcols[2].button("Bar"):
         st.session_state["chart_type"] = "Bar"
-    if st.button("Map", key="btn_map"):
+    if bcols[3].button("Map"):
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
