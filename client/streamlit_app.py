@@ -9,6 +9,7 @@ import requests
 import pandas as pd
 import plotly.express as px
 from numpy.random import default_rng as rng
+import numpy as np
 
 from flask import Flask, jsonify
 from pymongo import MongoClient
@@ -70,24 +71,41 @@ st.markdown("""
 
     /* Tabs */
     .stTabs [aria-selected="false"] { color: #000000; }
+    
     </style>
 """, unsafe_allow_html=True)
 
 # Load data
-df1 = pd.read_csv("./database/2021-dec16.csv")
+df1 = pd.read_csv("./database/2022-oct7.csv")
 df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
-df4 = pd.read_csv("./database/2022-oct7.csv")
-clean_df = pd.read_csv("./database/cleaned_data.csv")
-all_dfs = [df1, df2, df3, df4, clean_df]
+df4 = pd.read_csv("./database/2021-dec16.csv")
+
+#clean_df = pd.read_csv("./database/cleaned_data.csv")
+
+df1clean = pd.read_csv("./database/cleaned_2022-oct7.csv")
+df2clean = pd.read_csv("./database/cleaned_2021-oct21.csv")
+df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
+df4clean = pd.read_csv("./database/cleaned_2021-dec16.csv")
+
+all_dfs = [df1, df2, df3, df4]
 
 ##datasets for drop down
 datasets = {
-    "Dec 16, 2021": df1,
+    "Oct 7, 2022": df1,
     "Oct 21, 2021": df2,
     "Nov 16, 2022": df3,
-    "Oct 7, 2022": df4,
+    "Dec 16, 2021": df4,
     "All Datasets": pd.concat([df1, df2, df3, df4], ignore_index=True)
+}
+
+# Cleaned datasets
+clean_datasets = {
+    "Oct 7, 2022": df1clean,
+    "Oct 21, 2021": df2clean,
+    "Nov 16, 2022": df3clean,
+    "Dec 16, 2021": df4clean,
+    "All Datasets": pd.concat([df1clean, df2clean, df3clean, df4clean], ignore_index=True)
 }
 
 # Helpers: resolve column names & numeric ranges safely
@@ -118,7 +136,7 @@ def global_min_max(dfs, col):
     return float(pd.Series(vals).min()), float(pd.Series(vals).max())
 
 # Column aliases to handle inconsistent CSV headers
-TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)']
+TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)', 'Temperature (c)']
 ODO_ALIASES  = ['ODO (mg/L)', 'ODO mg/L', 'ODO', 'ODO_mg_L']
 PH_ALIASES   = ['pH', 'PH']
 
@@ -136,15 +154,6 @@ if SAL_COL is None:
 
 # Control Panel (Sidebar)
 st.sidebar.header("Control Panel")
-
-##Dropdown of datasets
-selected_dataset_name = st.sidebar.selectbox(
-    "Select dataset:",
-    list(datasets.keys()),
-    index=0
-)
-
-selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
@@ -192,8 +201,8 @@ else:
     odo_min = odo_max = None
 
 # 4) Pagination Inputs
-limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
-page = st.sidebar.number_input("Page number", 1, value=1)
+#limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
+#page = st.sidebar.number_input("Page number", 1, value=1)
 
 # Flask API (background)
 flask_app = Flask(__name__)
@@ -261,7 +270,17 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    st.subheader(f"Original Dataset for {selected_dataset_name}")
+    ##Dropdown of datasets
+    selected_dataset_name = st.selectbox(
+        "Select dataset:",
+        list(datasets.keys()),
+        index=0
+    )
+    selected_df = datasets[selected_dataset_name]
+
+    st.markdown(
+        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
     st.write(selected_df)
 
     #st.subheader("October 21, 2021")
@@ -274,45 +293,59 @@ with tab1:
     #st.write(df3)
 
 with tab2:
-    if st.button("2021 Clean Datasets"):
-        st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
-        st.write(clean_df)
+    #if st.button("2021 Clean Datasets"):
+        #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
+        #st.write(clean_df)
+
+    ##Dropdown of Cleaned datasets
+    selected_clean_dataset_name = st.selectbox(
+        "Select cleaned dataset:",
+        list(clean_datasets.keys()),
+        index=0
+    )
+    selected_cleaned_df = clean_datasets[selected_clean_dataset_name]
+
+    st.markdown(
+        f'<h2 style="color: black;">Cleaned Dataset for {selected_clean_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_cleaned_df)
+
 
 with tab3:
-    st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color:#000000;">{selected_clean_dataset_name}</h3>', unsafe_allow_html=True)
     
     if st.button("Load Plotly Chart 1"):
         st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
-        fig = px.scatter(clean_df, x="Total Water Column (m)", y="pH")
+        fig = px.scatter(selected_cleaned_df, x="Total Water Column (m)", y="pH")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
         st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter(
-            clean_df, x="latitude", y="longitude",
-            color="Temperature (C)", size="ODO (mg/L)",
+            selected_cleaned_df, x="Latitude", y="Longitude",
+            color="Temperature (c)", size="ODO mg/L",
             hover_data=["pH"]
         )
         st.plotly_chart(fig, use_container_width=True)
 
     if st.button("Load Plotly Chart 3"):
         st.markdown('<h3 style="color:#000000;">Broad Data Display</h3>', unsafe_allow_html=True)
-        st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+        st.bar_chart(selected_cleaned_df, x="pH", y="ODO mg/L", color="Temperature (c)", stack=False)
 
     if st.button("Load Plotly Chart 4"):
         st.markdown('<h3 style="color:#000000;">Oxygen Levels on Detailed Map</h3>', unsafe_allow_html=True)
         fig = px.scatter_mapbox(
-            clean_df,
-            lat="latitude", lon="longitude",
+            selected_cleaned_df,
+            lat="Latitude", lon="Longitude",
             hover_name="Total Water Column (m)",
-            hover_data=["ODO (mg/L)"],
-            color="ODO (mg/L)", size="ODO (mg/L)",
+            hover_data=["ODO mg/L"],
+            color="ODO mg/L", size="ODO mg/L",
             mapbox_style="open-street-map",
             zoom=17
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
+    #st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
 
 with tab4:
     # Start Flask (if not already) and call the API safely
