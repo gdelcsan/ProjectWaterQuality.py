@@ -27,9 +27,9 @@ st.markdown("""
     <style>
     /* Sidebar container */
     section[data-testid="stSidebar"] {
-        color: white !important;
+        color: #ffffff;
         text-align: center;
-        background-color: #B8E3FC;
+        background-color: #EAE0D5;
         background-image: linear-gradient(120deg, #4158C4, #4DB4F0);             
         border-right: 1px solid rgba(27,31,35,0.1);  
     }
@@ -37,7 +37,7 @@ st.markdown("""
     color: white;
     }
     .stApp {
-        background-color: #B8E3FC;
+        background-color: #F5F5DC;
     }   
     /* Make widgets pop */
     .stButton>button {
