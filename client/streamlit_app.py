@@ -41,20 +41,20 @@ st.markdown("""
     .stApp { background-color: #FBF7F2; }
 
     /* Buttons */
+    .stButton>button { border-radius: 10px; font-weight: 600; }
     .stButton > button {
-    background-color: #4DB4F0;
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    padding: 0.35rem 0.8rem;
-    font-weight: 600;
-    transition: all 0.2s ease-in-out;
+        color: white;
+        background-color: #4DB4F0;
+        border: none;
+        border-radius: 9999px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
     }
-
     .stButton > button:hover {
-    background-color: #1C349E;
-    background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
-    transform: scale(1.02);
+        background-color: #1C349E;
+        background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
+        transform: scale(1.02);
     }
 
     /* Title gradient */
