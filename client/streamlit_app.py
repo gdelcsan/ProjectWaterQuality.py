@@ -92,20 +92,14 @@ all_dfs = [df1, df2, df3, df4]
 
 ##datasets for drop down
 datasets = {
-    "Oct 7, 2022": df1,
-    "Oct 21, 2021": df2,
-    "Nov 16, 2022": df3,
-    "Dec 16, 2021": df4,
-    "All Datasets": pd.concat([df1, df2, df3, df4], ignore_index=True)
-}
-
-# Cleaned datasets
-clean_datasets = {
-    "Oct 7, 2022": df1clean,
-    "Oct 21, 2021": df2clean,
-    "Nov 16, 2022": df3clean,
-    "Dec 16, 2021": df4clean,
-    "All Datasets": pd.concat([df1clean, df2clean, df3clean, df4clean], ignore_index=True)
+    "Original: Oct 7, 2022": df1,
+    "Original: Oct 21, 2021": df2,
+    "Original: Nov 16, 2022": df3,
+    "Original: Dec 16, 2021": df4,
+    "Cleaned: Oct 7, 2022": df1clean,
+    "Cleaned:Oct 21, 2021": df2clean,
+    "Cleaned: Nov 16, 2022": df3clean,
+    "Cleaned: Dec 16, 2021": df4clean,
 }
 
 # Helpers: resolve column names & numeric ranges safely
@@ -154,6 +148,14 @@ if SAL_COL is None:
 
 # Control Panel (Sidebar)
 st.sidebar.header("Control Panel")
+
+##Dropdown of datasets
+selected_dataset_name = st.sidebar.selectbox(
+        "Select dataset:",
+        list(datasets.keys()),
+        index=0
+    )
+selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
@@ -261,25 +263,17 @@ def _ensure_flask_running():
 # UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Datasets</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab3, tab4, tab5 = st.tabs([
     "Datasets",
-    "Clean Datasets",
     "Plotly Charts",
     "Statistics",
     "Contributors"
 ])
 
 with tab1:
-    ##Dropdown of datasets
-    selected_dataset_name = st.selectbox(
-        "Select dataset:",
-        list(datasets.keys()),
-        index=0
-    )
-    selected_df = datasets[selected_dataset_name]
 
     st.markdown(
-        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
+        f'<h2 style="color: black;">Dataset for {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_df)
 
@@ -292,37 +286,30 @@ with tab1:
     #st.subheader("November 16, 2022")
     #st.write(df3)
 
-with tab2:
+#with tab2:
     #if st.button("2021 Clean Datasets"):
         #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
         #st.write(clean_df)
 
-    ##Dropdown of Cleaned datasets
-    selected_clean_dataset_name = st.selectbox(
-        "Select cleaned dataset:",
-        list(clean_datasets.keys()),
-        index=0
-    )
-    selected_cleaned_df = clean_datasets[selected_clean_dataset_name]
 
-    st.markdown(
-        f'<h2 style="color: black;">Cleaned Dataset for {selected_clean_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_cleaned_df)
+    #st.markdown(
+       # f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',
+        #unsafe_allow_html=True)
+    #st.write(selected_df )
 
 
 with tab3:
-    st.markdown(f'<h3 style="color:#000000;">{selected_clean_dataset_name}</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
     
     if st.button("Load Plotly Chart 1"):
         st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
-        fig = px.scatter(selected_cleaned_df, x="Total Water Column (m)", y="pH")
+        fig = px.scatter(selected_df , x="Total Water Column (m)", y="pH")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
         st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter(
-            selected_cleaned_df, x="Latitude", y="Longitude",
+            selected_df , x="Latitude", y="Longitude",
             color="Temperature (c)", size="ODO mg/L",
             hover_data=["pH"]
         )
@@ -330,12 +317,12 @@ with tab3:
 
     if st.button("Load Plotly Chart 3"):
         st.markdown('<h3 style="color:#000000;">Broad Data Display</h3>', unsafe_allow_html=True)
-        st.bar_chart(selected_cleaned_df, x="pH", y="ODO mg/L", color="Temperature (c)", stack=False)
+        st.bar_chart(selected_df , x="pH", y="ODO mg/L", color="Temperature (c)", stack=False)
 
     if st.button("Load Plotly Chart 4"):
         st.markdown('<h3 style="color:#000000;">Oxygen Levels on Detailed Map</h3>', unsafe_allow_html=True)
         fig = px.scatter_mapbox(
-            selected_cleaned_df,
+            selected_df ,
             lat="Latitude", lon="Longitude",
             hover_name="Total Water Column (m)",
             hover_data=["ODO mg/L"],
