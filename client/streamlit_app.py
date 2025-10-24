@@ -245,51 +245,58 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    # Optional: quick peek at column names (for debugging mismatches)
-    with st.expander("Show dataset column names"):
-        st.write("2021 Oct 21:", df2.columns)
-        st.write("2021 Dec 16:", df1.columns)
-        st.write("2022 Oct 7:", df4.columns)
-        st.write("2022 Nov 16:", df3.columns)
-        st.write("Cleaned:", clean_df.columns)
 
-with tab2:
-    st.subheader("Clean Dataset")
-    st.write(clean_df)
+    with st.expander("Show dataset column names"):
+        if st.button("2021 Datasets"):
+        st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
+        st.write(df2.columns)
+        st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
+        st.write(df1.columns)
+    
+    if st.button("2022 Datasets"):
+        st.markdown('<h3 style="color:#000000;">October 7, 2022</h3>', unsafe_allow_html=True)
+        st.write(df4.columns)
+        st.markdown('<h3 style="color:#000000;">November 16, 2022</h3>', unsafe_allow_html=True)
+        st.write(df3.columns)
 
 with tab3:
-    st.markdown('<h3 style="color:#000000;">pH vs Total Water Column</h3>', unsafe_allow_html=True)
-    if "Total Water Column (m)" in clean_df.columns and SAL_COL in clean_df.columns:
-        fig = px.scatter(clean_df, x="Total Water Column (m)", y=SAL_COL)
+    st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
+    
+    if st.button("Load Plotly Chart 1"):
+        st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
+        fig = px.scatter(clean_df, x="Total Water Column (m)", y="pH")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
-    else:
-        st.info("Required columns for this chart are not present in cleaned_data.")
 
-    if {"latitude", "longitude"}.issubset(clean_df.columns) and TEMP_COL in (clean_df.columns if TEMP_COL else []):
-        st.markdown('<h3 style="color:#000000;">Temperature Map</h3>', unsafe_allow_html=True)
+    if st.button("Load Plotly Chart 2"):
+        st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter(
             clean_df, x="latitude", y="longitude",
-            color=TEMP_COL, size=ODO_COL if ODO_COL in clean_df.columns else None,
-            hover_data=[SAL_COL] if SAL_COL in clean_df.columns else None
+            color="Temperature (C)", size="ODO (mg/L)",
+            hover_data=["pH"]
         )
         st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown('<h3 style="color:#000000;">Oxygen Levels (Map)</h3>', unsafe_allow_html=True)
-    if {"latitude", "longitude"}.issubset(clean_df.columns) and (ODO_COL in clean_df.columns if ODO_COL else False):
+    if st.button("Load Plotly Chart 3"):
+        st.markdown('<h3 style="color:#000000;">Broad Data Display</h3>', unsafe_allow_html=True)
+        st.bar_chart(clean_df, x="pH", y="ODO (mg/L)", color="Temperature (C)", stack=False)
+
+    if st.button("Load Plotly Chart 4"):
+        st.markdown('<h3 style="color:#000000;">Oxygen Levels on Detailed Map</h3>', unsafe_allow_html=True)
         fig = px.scatter_mapbox(
             clean_df,
             lat="latitude", lon="longitude",
-            hover_name="Total Water Column (m)" if "Total Water Column (m)" in clean_df.columns else None,
-            hover_data=[ODO_COL] if ODO_COL in clean_df.columns else None,
-            color=ODO_COL, size=ODO_COL,
+            hover_name="Total Water Column (m)",
+            hover_data=["ODO (mg/L)"],
+            color="ODO (mg/L)", size="ODO (mg/L)",
             mapbox_style="open-street-map",
-            zoom=12
+            zoom=17
         )
         st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Required columns for the map are not present in cleaned_data.")
+
+    st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
 
 with tab4:
+    # Start Flask (if not already) and call the API safely
     _ensure_flask_running()
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
@@ -298,7 +305,7 @@ with tab4:
         st.dataframe(pd.DataFrame(stats), use_container_width=True)
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
-
+        
 with tab5:
     st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/JasonP1-code/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p></a>""",unsafe_allow_html=True)
