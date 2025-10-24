@@ -57,14 +57,6 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    /* Container for the buttons */
-    .stButton {
-        display: flex;
-        justify-content: flex-end;  
-        gap: 6px;                  
-        margin-bottom: 10px;
-    }
-
     /* Title gradient */
     .header {
         text-align: center;
@@ -327,14 +319,19 @@ with tab3:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"  # default
 
-    bcols = st.columns(4)
-    if bcols[0].button("Scatter"):
+    spacer, c1, c2, c3, c4 = st.columns([1, 0.12, 0.12, 0.12, 0.12])
+
+    with c1:
+    if st.button("Scatter", key="btn_scatter"):
         st.session_state["chart_type"] = "Scatter"
-    if bcols[1].button("Line"):
+    with c2:
+    if st.button("Line", key="btn_line"):
         st.session_state["chart_type"] = "Line"
-    if bcols[2].button("Bar"):
+    with c3:
+    if st.button("Bar", key="btn_bar"):
         st.session_state["chart_type"] = "Bar"
-    if bcols[3].button("Map"):
+    with c4:
+    if st.button("Map", key="btn_map"):
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
