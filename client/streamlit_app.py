@@ -211,7 +211,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    st.subheader("October 21, 2021")
+    st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
     st.write(df2)
     st.subheader("December 16, 2021")
     st.write(df1)
