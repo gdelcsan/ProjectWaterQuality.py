@@ -83,6 +83,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True) 
 
+st.set_page_config(page_title="Biscayne Bay Water Datasets", page_icon="🌊")
+
 df1 = pd.read_csv("./database/2021-dec16.csv")
 df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
@@ -198,7 +200,7 @@ def _ensure_flask_running():
             time.sleep(0.1)
 
 # Streamlit UI
-st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="header"><h1>Biscayne Bay Water Datasets</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Datasets",
