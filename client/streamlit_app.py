@@ -39,22 +39,27 @@ st.markdown("""
     section[data-testid="stSidebar"] label { color: white; }
 
     .stApp { background-color: #FBF7F2; }
-    
+
     /* Buttons */
-    .stButton>button { border-radius: 10px; font-weight: 600; }
-    .stButton > button {
-        color: white;
-        background-color: #4DB4F0;
-        border: none;
-        border-radius: 9999px;
-        padding: 0.6rem 1.2rem;
-        font-weight: 600;
-        transition: all 0.2s ease-in-out;
+    div.stButton {
+    display: inline-block;     /* 👈 allows them to sit next to each other */
+    margin-right: 6px;         /* 👈 small gap between buttons */
     }
-    .stButton > button:hover {
-        background-color: #1C349E;
-        background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
-        transform: scale(1.02);
+
+    div.stButton > button {
+    background-color: #4DB4F0;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.35rem 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    }
+
+    div.stButton > button:hover {
+    background-color: #1C349E;
+    background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
+    transform: scale(1.02);
     }
 
     /* Title gradient */
@@ -319,20 +324,17 @@ with tab3:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"  # default
 
-    c1, c2, c3, c4 = st.columns([0.12, 0.12, 0.12, 0.12])
+    if st.button("Scatter", key="btn_scatter"):
+        st.session_state["chart_type"] = "Scatter"
+        
+    if st.button("Line", key="btn_line"):
+        st.session_state["chart_type"] = "Line"
+        
+    if st.button("Bar", key="btn_bar"):
+        st.session_state["chart_type"] = "Bar"
 
-    with c1:
-        if st.button("Scatter", key="btn_scatter"):
-            st.session_state["chart_type"] = "Scatter"
-    with c2:
-        if st.button("Line", key="btn_line"):
-            st.session_state["chart_type"] = "Line"
-    with c3:
-        if st.button("Bar", key="btn_bar"):
-            st.session_state["chart_type"] = "Bar"
-    with c4:
-        if st.button("Map", key="btn_map"):
-            st.session_state["chart_type"] = "Map"
+    if st.button("Map", key="btn_map"):
+        st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
     st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
