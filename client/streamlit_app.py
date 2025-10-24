@@ -79,8 +79,16 @@ df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
 df4 = pd.read_csv("./database/2022-oct7.csv")
 clean_df = pd.read_csv("./database/cleaned_data.csv")
-
 all_dfs = [df1, df2, df3, df4, clean_df]
+
+##datasets for drop down
+datasets = {
+    "Dec 16, 2021": df1,
+    "Oct 21, 2021": df2,
+    "Nov 16, 2022": df3,
+    "Oct 7, 2022": df4,
+    "All Datasets": pd.concat([df1, df2, df3, df4], ignore_index=True)
+}
 
 # Helpers: resolve column names & numeric ranges safely
 def find_existing_col(dfs, aliases):
@@ -128,6 +136,15 @@ if SAL_COL is None:
 
 # Control Panel (Sidebar)
 st.sidebar.header("Control Panel")
+
+##Dropdown of datasets
+selected_dataset_name = st.sidebar.selectbox(
+    "Select dataset:",
+    list(datasets.keys()),
+    index=0
+)
+
+selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
@@ -244,17 +261,17 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-    if st.button("2021 Datasets"):
-        st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
-        st.write(df2)
-        st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
-        st.write(df1)
-    
-    if st.button("2022 Datasets"):
-        st.markdown('<h3 style="color:#000000;">October 7, 2022</h3>', unsafe_allow_html=True)
-        st.write(df4)
-        st.markdown('<h3 style="color:#000000;">November 16, 2022</h3>', unsafe_allow_html=True)
-        st.write(df3)
+    st.subheader(f"Original Dataset for {selected_dataset_name}")
+    st.write(selected_df)
+
+    #st.subheader("October 21, 2021")
+    #st.write(df2)
+    #st.subheader("December 16, 2021")
+    #st.write(df1)
+    #st.subheader("October 7, 2022")
+    #st.write(df4)
+    #st.subheader("November 16, 2022")
+    #st.write(df3)
 
 with tab2:
     if st.button("2021 Clean Datasets"):
