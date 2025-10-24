@@ -42,8 +42,9 @@ st.markdown("""
 
     /* Buttons */
     div.stButton {
-    display: inline-block;     /* 👈 allows them to sit next to each other */
-    margin-right: 6px;         /* 👈 small gap between buttons */
+    display: inline-block; 
+    margin-right: 6px;
+    margin-bottom: 0;
     }
 
     div.stButton > button {
