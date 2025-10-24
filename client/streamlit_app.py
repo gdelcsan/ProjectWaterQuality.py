@@ -76,30 +76,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load data
-df1 = pd.read_csv("./database/2022-oct7.csv")
 df2 = pd.read_csv("./database/2021-oct21.csv")
-df3 = pd.read_csv("./database/2022-nov16.csv")
 df4 = pd.read_csv("./database/2021-dec16.csv")
+df1 = pd.read_csv("./database/2022-oct7.csv")
+df3 = pd.read_csv("./database/2022-nov16.csv")
 
 #clean_df = pd.read_csv("./database/cleaned_data.csv")
 
-df1clean = pd.read_csv("./database/cleaned_2022-oct7.csv")
 df2clean = pd.read_csv("./database/cleaned_2021-oct21.csv")
-df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
 df4clean = pd.read_csv("./database/cleaned_2021-dec16.csv")
+df1clean = pd.read_csv("./database/cleaned_2022-oct7.csv")
+df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
 
 all_dfs = [df1, df2, df3, df4]
 
 ##datasets for drop down
 datasets = {
-    "Original: Oct 7, 2022": df1,
     "Original: Oct 21, 2021": df2,
-    "Original: Nov 16, 2022": df3,
     "Original: Dec 16, 2021": df4,
-    "Cleaned: Oct 7, 2022": df1clean,
+    "Original: Oct 7, 2022": df1,
+    "Original: Nov 16, 2022": df3,
     "Cleaned:Oct 21, 2021": df2clean,
-    "Cleaned: Nov 16, 2022": df3clean,
     "Cleaned: Dec 16, 2021": df4clean,
+    "Cleaned: Oct 7, 2022": df1clean,
+    "Cleaned: Nov 16, 2022": df3clean,
 }
 
 # Helpers: resolve column names & numeric ranges safely
@@ -300,16 +300,29 @@ with tab1:
 
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
+
+    st.subheader("Chart Settings")
+        all_columns = selected_df.columns.tolist()
+        x_axis_column = st.selectbox("Select X-axis column", all_columns)
+        y_axis_column = st.selectbox("Select Y-axis column", all_columns)
+        chart_type = st.selectbox("Select Chart Type", ["Bar", "Scatter", "Line"])
+
+        if chart_type == "Bar":
+            fig = px.bar(df, x=x_axis_column, y=y_axis_column)
+        elif chart_type == "Scatter":
+            fig = px.scatter(df, x=x_axis_column, y=y_axis_column)
+        elif chart_type == "Line":
+            fig = px.line(df, x=x_axis_column, y=y_axis_column)
     
     if st.button("Load Plotly Chart 1"):
         st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
-        fig = px.scatter(selected_df , x="Total Water Column (m)", y="pH")
+        fig = px.scatter(selected_df, x="Total Water Column (m)", y="pH")
         st.plotly_chart(fig, theme="streamlit", use_container_width=True)
 
     if st.button("Load Plotly Chart 2"):
         st.markdown('<h3 style="color:#000000;">Temperature in Celsius on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter(
-            selected_df , x="Latitude", y="Longitude",
+            selected_df, x="Latitude", y="Longitude",
             color="Temperature (c)", size="ODO mg/L",
             hover_data=["pH"]
         )
@@ -320,9 +333,9 @@ with tab3:
         st.bar_chart(selected_df , x="pH", y="ODO mg/L", color="Temperature (c)", stack=False)
 
     if st.button("Load Plotly Chart 4"):
-        st.markdown('<h3 style="color:#000000;">Oxygen Levels on Detailed Map</h3>', unsafe_allow_html=True)
+        st.markdown('<h3 style="color:#000000;">Oxygen Levels on Map</h3>', unsafe_allow_html=True)
         fig = px.scatter_mapbox(
-            selected_df ,
+            selected_df,
             lat="Latitude", lon="Longitude",
             hover_name="Total Water Column (m)",
             hover_data=["ODO mg/L"],
