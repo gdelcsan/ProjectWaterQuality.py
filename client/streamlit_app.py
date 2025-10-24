@@ -57,7 +57,13 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    .button-row { display:flex; gap:6px; align-items:center; }
+    div.stButton {
+    display: inline-flex !important;  
+    align-items: center;
+    width: auto !important;     
+    margin-right: 6px;    
+    margin-bottom: 0;
+    }
 
     /* Title gradient */
     .header {
@@ -318,12 +324,14 @@ with tab3:
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    st.markdown('<div class="button-row">', unsafe_allow_html=True)
-    if st.button("Scatter", key="btn_scatter"): st.session_state["chart_type"] = "Scatter"
-    if st.button("Line", key="btn_line"):      st.session_state["chart_type"] = "Line"
-    if st.button("Bar", key="btn_bar"):        st.session_state["chart_type"] = "Bar"
-    if st.button("Map", key="btn_map"):        st.session_state["chart_type"] = "Map"
-    st.markdown("</div>", unsafe_allow_html=True)
+    if st.button("Scatter", key="btn_scatter"):
+    st.session_state["chart_type"] = "Scatter"
+    if st.button("Line", key="btn_line"):
+    st.session_state["chart_type"] = "Line"
+    if st.button("Bar", key="btn_bar"):
+    st.session_state["chart_type"] = "Bar"
+    if st.button("Map", key="btn_map"):
+    st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
     st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
