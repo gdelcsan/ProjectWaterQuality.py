@@ -273,7 +273,7 @@ with tab4:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
 with tab5:
-    st.markdown('<p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p>', unsafe_allow_html=True)
+    st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
     st.markdown('<p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#000000; font-size:20px; font-weight:600;">☆ Luis Gutierrez</p>', unsafe_allow_html=True)
     st.markdown('<p style="color:#000000; font-size:20px; font-weight:600;">☆ Lauren Stone</p>', unsafe_allow_html=True)
