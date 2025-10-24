@@ -319,7 +319,7 @@ with tab3:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"  # default
 
-    spacer, c1, c2, c3, c4 = st.columns([1, 0.12, 0.12, 0.12, 0.12])
+    c1, c2, c3, c4 = st.columns([1, 1, 1, 1, 1])
 
     with c1:
         if st.button("Scatter", key="btn_scatter"):
