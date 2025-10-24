@@ -301,18 +301,74 @@ with tab1:
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
 
-    st.subheader("Chart Settings")
-        all_columns = selected_df.columns.tolist()
-        x_axis_column = st.selectbox("Select X-axis column", all_columns)
-        y_axis_column = st.selectbox("Select Y-axis column", all_columns)
-        chart_type = st.selectbox("Select Chart Type", ["Bar", "Scatter", "Line"])
+    with tab4:
+    df = selected_df.copy()
 
-        if chart_type == "Bar":
-            fig = px.bar(df, x=x_axis_column, y=y_axis_column)
-        elif chart_type == "Scatter":
-            fig = px.scatter(df, x=x_axis_column, y=y_axis_column)
+    # Common helpers
+    all_cols = df.columns.tolist()
+    num_cols = df.select_dtypes(include="number").columns.tolist()
+
+    chart_type = st.selectbox("Chart type", ["Scatter", "Line", "Bar", "Map"], index=0)
+
+    # Optional encodings used by multiple chart types
+    color_opt = st.selectbox("Color (optional)", ["(none)"] + all_cols, index=0)
+    size_opt = st.selectbox(
+        "Size (optional, numeric)", ["(none)"] + num_cols, index=0
+    )
+
+    def _opt_kwargs():
+        kwargs = {}
+        if color_opt != "(none)":
+            kwargs["color"] = color_opt
+        if size_opt != "(none)":
+            kwargs["size"] = size_opt
+        return kwargs
+
+    if chart_type != "Map":
+        # X / Y for non-map charts
+        x_col = st.selectbox("X-axis", all_cols, index=0)
+        y_col = st.selectbox("Y-axis", all_cols, index=1 if len(all_cols) > 1 else 0)
+
+        if chart_type == "Scatter":
+            fig = px.scatter(df, x=x_col, y=y_col, **_opt_kwargs())
         elif chart_type == "Line":
-            fig = px.line(df, x=x_axis_column, y=y_axis_column)
+            fig = px.line(df, x=x_col, y=y_col, **_opt_kwargs())
+        else:  # "Bar"
+            fig = px.bar(df, x=x_col, y=y_col, **_opt_kwargs())
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        # Map chart
+        LAT_ALIASES = ["Latitude", "Lat", "latitude", "lat"]
+        LON_ALIASES = ["Longitude", "Lon", "Lng", "longitude", "lon", "lng"]
+
+        lat_col = find_existing_col([df], LAT_ALIASES)
+        lon_col = find_existing_col([df], LON_ALIASES)
+
+        if not lat_col or not lon_col:
+            st.warning(
+                "To plot a map, your dataset must have latitude/longitude columns. "
+                f"Tried latitude aliases: {LAT_ALIASES}; longitude aliases: {LON_ALIASES}."
+            )
+        else:
+            hover_cols = st.multiselect(
+                "Hover data (optional)",
+                [c for c in all_cols if c not in {lat_col, lon_col}],
+                default=[]
+            )
+            zoom = st.slider("Map zoom", 1, 18, value=12)
+
+            fig = px.scatter_mapbox(
+                df,
+                lat=lat_col,
+                lon=lon_col,
+                hover_data=hover_cols,
+                **_opt_kwargs(),
+                zoom=zoom
+            )
+            fig.update_layout(mapbox_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0))
+            st.plotly_chart(fig, use_container_width=True)
     
     if st.button("Load Plotly Chart 1"):
         st.markdown('<h3 style="color:#000000;">pH Correlation with Depth</h3>', unsafe_allow_html=True)
