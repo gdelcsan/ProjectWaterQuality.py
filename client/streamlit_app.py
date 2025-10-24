@@ -81,11 +81,6 @@ st.markdown("""
         border: 1px solid #ccc !important;
     }
     
-    /* Caption text in black */
-    .stCaption, div[data-testid="stCaptionContainer"] p {
-        color: black !important;
-    }
-    
     </style>
 """, unsafe_allow_html=True)
 
@@ -337,18 +332,20 @@ with tab3:
     chart_type = st.session_state["chart_type"]
     st.caption(f"Active chart: **{chart_type}**")
 
-    st.markdown("<p style='color:black;'>Color (optional)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
-    label="",
+    label="Color (optional)",
     options=["(none)"] + all_cols,
-    index=0
+    index=0,
+    label_visibility="collapsed"  # 👈 removes the default label *and* its extra space
     )
 
-    st.markdown("<p style='color:black;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
-    label="",
+    label="Size (optional/numeric)",
     options=["(none)"] + num_cols,
-    index=0
+    index=0,
+    label_visibility="collapsed"  # no padding above
     )
 
     def _opt_kwargs():
@@ -385,12 +382,22 @@ with tab3:
                 f"Tried latitude aliases: {LAT_ALIASES}; longitude aliases: {LON_ALIASES}."
             )
         else:
+            st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Hover data (optional)</p>", unsafe_allow_html=True)
             hover_cols = st.multiselect(
-                "Hover data (optional)",
-                [c for c in all_cols if c not in {lat_col, lon_col}],
-                default=[]
+            label="Hover data (optional)",
+            options=[c for c in all_cols if c not in {lat_col, lon_col}],
+            default=[],
+            label_visibility="collapsed"  # 👈 removes extra label spacing
             )
-            zoom = st.slider("Map zoom", 1, 18, value=17)
+
+            st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Map zoom</p>", unsafe_allow_html=True)
+            zoom = st.slider(
+            label="Map zoom",
+            min_value=1,
+            max_value=18,
+            value=17,
+            label_visibility="collapsed"  # 👈 also removes padding
+            )
 
             fig = px.scatter_mapbox(
                 df,
