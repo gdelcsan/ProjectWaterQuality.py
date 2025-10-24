@@ -41,13 +41,7 @@ st.markdown("""
     .stApp { background-color: #FBF7F2; }
 
     /* Buttons */
-    div.stButton {
-    display: flex; 
-    justify-content: flex-start;
-    margin-bottom: 10px;
-    }
-
-    div.stButton > button {
+    .stButton > button {
     background-color: #4DB4F0;
     color: white;
     border: none;
@@ -57,7 +51,7 @@ st.markdown("""
     transition: all 0.2s ease-in-out;
     }
 
-    div.stButton > button:hover {
+    .stButton > button:hover {
     background-color: #1C349E;
     background-image: linear-gradient(90deg, #1C349E, #4DB4F0);
     transform: scale(1.02);
