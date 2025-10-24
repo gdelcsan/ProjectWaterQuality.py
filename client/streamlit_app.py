@@ -245,9 +245,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
-
-    with st.expander("Show dataset column names"):
-        if st.button("2021 Datasets"):
+    if st.button("2021 Datasets"):
         st.markdown('<h3 style="color:#000000;">October 21, 2021</h3>', unsafe_allow_html=True)
         st.write(df2.columns)
         st.markdown('<h3 style="color:#000000;">December 16, 2021</h3>', unsafe_allow_html=True)
