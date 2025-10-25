@@ -259,11 +259,12 @@ else:
 # Streamlit UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Datasets",
     "Plotly Charts",
     "Statistics",
     "Outliers",
+    "Code",
     "Contributors"
 ])
 
@@ -405,6 +406,16 @@ with tab4:
     # Lauren, you can work here
     # keep in mind the default text-color is white for st.write
     st.write("Testing")
+
+with tab5:
+    st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
+    FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
+    src = f"https://drive.google.com/embeddedfolderview?id={FOLDER_ID}#list"
+    st.components.v1.html(
+        f'<iframe src="{src}" style="width:100%; height:600px; border:0;"></iframe>',
+        height=620,
+        scrolling=True,
+    )
 
 with tab5:
     st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
