@@ -292,7 +292,7 @@ with tab2:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"
         
-    bcols = st.columns([1, 1, 1], gap="small")
+    bcols = st.columns([0.1, 0.1, 0.1], gap="small")
     if bcols[0].button("Scatter"):
         st.session_state["chart_type"] = "Scatter"
     if bcols[1].button("Line"):
