@@ -428,7 +428,7 @@ with tab3:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
 with tab4:
-    st.markdown("### Project Files (Google Drive)")
+    st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
     src = f"https://drive.google.com/embeddedfolderview?id={FOLDER_ID}#list"
     st.components.v1.html(
