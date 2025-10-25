@@ -407,7 +407,7 @@ with tab4:
 
     metric = st.selectbox(
         label="Columns",
-        options=[("none")] + num_col,
+        options=[("none")] + num_cols,
         index=0,
         label_visibility="collapsed"
     )
