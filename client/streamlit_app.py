@@ -514,20 +514,20 @@ with tab4:
             r = requests.get(url, params=params, timeout=12)
             data = r.json()
 
-                if r.ok:
-                    if isinstance(data, list):
-                        st.success(f"Flagged records: {len(data)}")
-                        rows = []
-                        for item in data:
-                            if "record" in item and isinstance(item["record"], dict):
-                                row = {"row_index": item.get("row_index"), **item["record"]}
-                            else:
-                                row = item
-                            rows.append(row)
-                        if rows:
-                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
+            if r.ok:
+                if isinstance(data, list):
+                    st.success(f"Flagged records: {len(data)}")
+                    rows = []
+                    for item in data:
+                        if "record" in item and isinstance(item["record"], dict):
+                            row = {"row_index": item.get("row_index"), **item["record"]}
                         else:
-                            st.info("No outliers found for the chosen parameters.")
+                            row = item
+                            rows.append(row)
+                    if rows:
+                        st.dataframe(pd.DataFrame(rows), use_container_width=True)
+                    else:
+                        st.info("No outliers found for the chosen parameters.")
                     else:
                         st.write(data)
                 else:
