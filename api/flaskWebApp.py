@@ -2,6 +2,14 @@ from flask import Flask, jsonify, request, abort
 from mongoDB import upload, query
 import pandas as pd
 
+SELECTED_DF = None
+SELECTED_DF_LOCK = threading.Lock()
+
+def _set_selected_df(df):
+    global SELECTED_DF
+    with SELECTED_DF_LOCK:
+        SELECTED_DF = df
+
 app = Flask(__name__)
 
 # print(df.head())
