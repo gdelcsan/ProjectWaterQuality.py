@@ -429,8 +429,8 @@ with tab3:
 
 with tab4:
     st.markdown("### Project Files (Google Drive)")
-    FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN?dmr=1&ec=wgc-drive-globalnav-goto"
-    src = f"https://drive.google.com/drive/folders/1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN?usp=sharing#list"
+    FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
+    src = f"https://drive.google.com/embeddedfolderview?id={FOLDER_ID}#grid"
     st.components.v1.html(
         f'<iframe src="{src}" style="width:100%; height:600px; border:0;"></iframe>',
         height=620,
