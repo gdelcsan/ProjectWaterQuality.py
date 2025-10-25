@@ -289,33 +289,34 @@ with tab2:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"
         
-    bcols = st.columns(4)
+    # Buttons
+    bcols = st.columns(3)
     if bcols[0].button("Scatter"):
         st.session_state["chart_type"] = "Scatter"
     if bcols[1].button("Line"):
         st.session_state["chart_type"] = "Line"
-    if bcols[2].button("Bar"):
-        st.session_state["chart_type"] = "Bar"
-    if bcols[3].button("Map"):
+    if bcols[2].button("Map"):
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
 
+    # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
-    label="Color (optional)",
-    options=["(none)"] + all_cols,
-    index=0,
-    label_visibility="collapsed" 
+        label="Color (optional)",
+        options=["(none)"] + all_cols,
+        index=0,
+        label_visibility="collapsed"
     )
 
+    # Size
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
-    label="Size (optional)",
-    options=["(none)"] + num_cols,
-    index=0,
-    label_visibility="collapsed" 
+        label="Size (optional)",
+        options=["(none)"] + num_cols,
+        index=0,
+        label_visibility="collapsed"
     )
 
     def _opt_kwargs():
@@ -326,31 +327,31 @@ with tab2:
             kwargs["size"] = size_opt
         return kwargs
 
+    # Scatter or Line plot
     if chart_type != "Map":
         st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>X-axis</p>", unsafe_allow_html=True)
         x_col = st.selectbox(
-        label="X-axis",
-        options=all_cols,
-        index=0,
-        label_visibility="collapsed" 
+            label="X-axis",
+            options=all_cols,
+            index=0,
+            label_visibility="collapsed"
         )
         st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Y-axis</p>", unsafe_allow_html=True)
         y_col = st.selectbox(
-        label="Y-axis",
-        options=all_cols,
-        index=1 if len(all_cols) > 1 else 0,
-        label_visibility="collapsed"
+            label="Y-axis",
+            options=all_cols,
+            index=1 if len(all_cols) > 1 else 0,
+            label_visibility="collapsed"
         )
 
         if chart_type == "Scatter":
             fig = px.scatter(df, x=x_col, y=y_col, **_opt_kwargs())
         elif chart_type == "Line":
             fig = px.line(df, x=x_col, y=y_col, **_opt_kwargs())
-        else:  # "Bar"
-            fig = px.bar(df, x=x_col, y=y_col, **_opt_kwargs())
 
         st.plotly_chart(fig, use_container_width=True)
 
+    # Map plot
     else:
         LAT_ALIASES = ["Latitude", "Lat", "latitude", "lat"]
         LON_ALIASES = ["Longitude", "Lon", "Lng", "longitude", "lon", "lng"]
@@ -366,32 +367,32 @@ with tab2:
         else:
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Hover data (optional)</p>", unsafe_allow_html=True)
             hover_cols = st.multiselect(
-            label="Hover data (optional)",
-            options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
-            default=[],
-            label_visibility="collapsed" 
+                label="Hover data (optional)",
+                options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
+                default=[],
+                label_visibility="collapsed"
             )
 
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Map zoom</p>", unsafe_allow_html=True)
             zoom = st.slider(
-            label="Map zoom",
-            min_value=1,
-            max_value=18,
-            value=17,
-            label_visibility="collapsed" 
+                label="Map zoom",
+                min_value=1,
+                max_value=18,
+                value=17,
+                label_visibility="collapsed"
             )
 
             fig = px.scatter_map(
-            df,
-            lat=lat_col,
-            lon=lon_col,
-            hover_data=hover_cols,
-            **_opt_kwargs(),
-            zoom=zoom
+                df,
+                lat=lat_col,
+                lon=lon_col,
+                hover_data=hover_cols,
+                **_opt_kwargs(),
+                zoom=zoom
             )
             fig.update_layout(
-            map_style="open-street-map",
-            margin=dict(l=0, r=0, t=0, b=0)
+                map_style="open-street-map",
+                margin=dict(l=0, r=0, t=0, b=0)
             )
             st.plotly_chart(fig, use_container_width=True)
             
