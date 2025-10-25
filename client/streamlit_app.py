@@ -49,22 +49,6 @@ st.markdown("""
         transform: scale(1.02);
     }
 
-    .contributor-link p {
-        color: #000000;
-        font-size: 20px;
-        font-weight: 600;
-        transition: transform 0.2s ease, color 0.2s ease;
-        display: inline-block;
-        margin: 0;
-    }
-    .contributor-link p:hover {
-        transform: scale(1.08);
-        color: #1C349E; /* optional color change on hover */
-    }
-    .contributor-link a {
-        text-decoration: none;
-    }
-
     /* Title gradient */
     .header {
         text-align: center;
