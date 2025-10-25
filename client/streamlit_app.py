@@ -313,7 +313,7 @@ with tab2:
 
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
-    label="Size (optional/numeric)",
+    label="Size (optional)",
     options=["(none)"] + num_cols,
     index=0,
     label_visibility="collapsed" 
@@ -403,7 +403,7 @@ with tab3:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
 with tab4:
-    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Column</p>", unsafe_allow_html=True)
 
     df = selected_clean.copy()
     num_cols = df.select_dtypes(include="number").columns.tolist()
@@ -465,13 +465,6 @@ with tab4:
 
     if st.button("Re-check outliers", key="outliers_button"):
         try:
-            params = {
-            "field": metric,
-            "method": method.lower(),
-            "k": k,
-            "dataset": selected_dataset_name,
-            "include": include
-            }
             url = f"{BASE_URL}/api/outliers"
             r = requests.get(url, params=params, timeout=12)
             data = r.json()
