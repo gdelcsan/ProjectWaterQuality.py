@@ -95,11 +95,44 @@ def observations():
     return json.loads(json_util.dumps(query(args)))
     #return query(args)
 
-@app.route('/api/stats')
-def stats():
-    clean_dataset = pd.read_csv("database/cleaned_data.csv")
-    return jsonify((clean_dataset.describe()).to_dict(orient='dict'))
+@flask_app.get("/api/stats")
+def api_stats():
+    """
+    Stats for the CURRENT selected_df:
+    count, mean, std, min, 25%, 50%, 75%, max for numeric columns only.
+    """
+    try:
+        with SELECTED_DF_LOCK:
+            local_df = SELECTED_DF.copy() if SELECTED_DF is not None else None
 
+        if local_df is None or not hasattr(local_df, "select_dtypes"):
+            return jsonify({"error": "No dataset selected"}), 400
+
+        num_df = local_df.select_dtypes(include="number")
+        if num_df.empty:
+            return jsonify({"error": "No numeric columns to summarize for this dataset"}), 400
+
+        # Use describe() to include percentiles 25/50/75
+        desc = num_df.describe()  # rows: ['count','mean','std','min','25%','50%','75%','max']
+
+        # Round + sanitize for JSON (jsonify cannot handle NaN/Inf)
+        desc = desc.round(3).replace([np.inf, -np.inf], np.nan).where(pd.notnull(desc), None)
+
+        # Return a tidy records-like structure (one row per metric)
+        summary = (
+            desc.transpose()
+                .reset_index()
+                .rename(columns={"index": "metric"})
+        )
+
+        # Ensure 'metric' is a string (just in case)
+        summary["metric"] = summary["metric"].astype(str)
+
+        return jsonify(summary.to_dict(orient="records")), 200
+
+    except Exception as e:
+        return jsonify({"error": "internal_error", "detail": str(e)}), 500
+        
 @app.route('/api/outliers')
 def pullOutliers():
 
