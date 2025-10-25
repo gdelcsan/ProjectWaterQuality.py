@@ -271,7 +271,7 @@ def _ensure_flask_running():
 # UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Datasets</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
-tab1, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "Datasets",
     "Plotly Charts",
     "Statistics",
@@ -280,29 +280,28 @@ tab1, tab3, tab4, tab5, tab6 = st.tabs([
 ])
 
 with tab1:
-
     st.markdown(
         f'<h2 style="color: black;">Dataset for {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_df)
 
-    st.subheader("October 21, 2021")
-    st.write(df2)
-    st.subheader("December 16, 2021")
-    st.write(df1)
-    st.subheader("October 7, 2022")
-    st.write(df4)
-    st.subheader("November 16, 2022")
-    st.write(df3)
+    #st.subheader("October 21, 2021")
+    #st.write(df2)
+    #st.subheader("December 16, 2021")
+    #st.write(df1)
+    #st.subheader("October 7, 2022")
+    #st.write(df4)
+    #st.subheader("November 16, 2022")
+    #st.write(df3)
+
+#with tab2:
+    #if st.button("2021 Clean Datasets"):
+        #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
+        #st.write(clean_df)
+        #st.markdown(f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',unsafe_allow_html=True)
+        #st.write(selected_df )
 
 with tab2:
-    if st.button("2021 Clean Datasets"):
-        st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
-        st.write(clean_df)
-        st.markdown(f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',unsafe_allow_html=True)
-        st.write(selected_df )
-
-with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
 
     df = selected_df.copy()
@@ -417,7 +416,7 @@ with tab3:
             fig.update_layout(mapbox_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0))
             st.plotly_chart(fig, use_container_width=True)
 
-with tab4:
+with tab3:
     # Start Flask (if not already) and call the API safely
     _ensure_flask_running()
     try:
@@ -428,7 +427,7 @@ with tab4:
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
-with tab5:
+with tab4:
     st.markdown("### Project Files (Google Drive)")
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN?dmr=1&ec=wgc-drive-globalnav-goto"
     src = f"https://drive.google.com/embeddedfolderview?id=1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN?dmr=1&ec=wgc-drive-globalnav-goto#list"
@@ -438,7 +437,7 @@ with tab5:
         scrolling=True,
     )
         
-with tab6:
+with tab5:
     st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/JasonP1-code/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/McArthurMilk/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Luis Gutierrez</p></a>""",unsafe_allow_html=True)
