@@ -462,26 +462,42 @@ with tab4:
     help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
     )
 
-    if st.button("Confirm", key="obs_confirm"):
-        try:
-            url = f"{BASE_URL}/api/observations"
-            r = requests.get(url, timeout=8)
-            data = r.json()
+    if st.button("Confirm", key="outliers_button"):
+            try:
+                params = {
+                    "field": metric,
+                    "method": method.lower(),
+                    "k": k,
+                    "dataset": selected_dataset_name,
+                    "include": include
+                }
+                url = f"{BASE_URL}/api/outliers"
+                r = requests.get(url, params=params, timeout=12)
+                data = r.json()
 
-            if r.ok:
-                if isinstance(data, list):
-                    st.dataframe(pd.DataFrame(data), use_container_width=True)
-                elif isinstance(data, dict) and "error" in data:
-                    st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
+                if r.ok:
+                    if isinstance(data, list):
+                        st.success(f"Flagged records: {len(data)}")
+                        rows = []
+                        for item in data:
+                            if "record" in item and isinstance(item["record"], dict):
+                                row = {"row_index": item.get("row_index"), **item["record"]}
+                            else:
+                                row = item
+                            rows.append(row)
+                        if rows:
+                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
+                        else:
+                            st.info("No outliers found for the chosen parameters.")
+                    else:
+                        st.write(data)
                 else:
-                    st.write(data)
-            else:
-                if isinstance(data, dict) and "error" in data:
-                    st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                else:
-                    r.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            st.error(f"Could not reach /api/observations\n{e}")
+                    if isinstance(data, dict) and "error" in data:
+                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                    else:
+                        r.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
             
 with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
