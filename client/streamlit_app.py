@@ -167,9 +167,6 @@ selected_dataset_name = st.sidebar.selectbox(
 
 selected_df = datasets[selected_dataset_name]
 
-from app import _set_selected_df
-_set_selected_df(selected_df)
-
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
     temp_min_val, temp_max_val = global_min_max(all_dfs, TEMP_COL)
