@@ -1,4 +1,4 @@
-
+v
 import streamlit as st
 import requests
 import pandas as pd
@@ -465,8 +465,8 @@ with tab4:
 
     if st.button("Re-check outliers", key="outliers_button"):
         try:
-            url = f"{BASE_URL}/api/outliers"
-            r = requests.get(url, params=params, timeout=12)
+            url = f"{BASE_URL}/api/observations"
+            r = requests.get(url, timeout=8)
             data = r.json()
 
             if r.ok:
