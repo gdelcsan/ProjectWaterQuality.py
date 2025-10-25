@@ -466,21 +466,38 @@ with tab4:
         )
 
         if method == "IQR":
-            k = st.number_input(
-                "IQR multiplier (k)", min_value=0.1, max_value=10.0, value=1.5, step=0.1,
-                key="outliers_k_iqr"  
+            st.markdown(
+            "<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>IQR multiplier (k)</p>",
+            unsafe_allow_html=True
             )
+            k = st.number_input(
+            label="IQR multiplier (k)",
+            min_value=0.1, max_value=10.0, value=1.5, step=0.1,
+            key="outliers_k_iqr",
+            label_visibility="collapsed"  # 👈 hides gray Streamlit label
+        )
         else:
-            k = st.number_input(
-                "Z-score threshold (k)", min_value=0.5, max_value=10.0, value=3.0, step=0.1,
-                key="outliers_k_zscore" 
-            )
+        st.markdown(
+        "<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Z-score threshold (k)</p>",
+        unsafe_allow_html=True
+        )
+        k = st.number_input(
+        label="Z-score threshold (k)",
+        min_value=0.5, max_value=10.0, value=3.0, step=0.1,
+        key="outliers_k_zscore",
+        label_visibility="collapsed"  # 👈 hides gray Streamlit label
+        )
 
+    st.markdown(
+    "<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Return detail</p>",
+    unsafe_allow_html=True
+    )
         include = st.selectbox(
             "Return detail",
             options=["rows", "values", "minimal"],
             index=0,
-            key="outliers_include_select", 
+            key="outliers_include_select",
+            label_visibility="collapsed",
             help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
         )
 
