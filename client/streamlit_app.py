@@ -279,7 +279,10 @@ with tab1:
 
 with tab2:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
-
+    
+    chart_type = st.session_state["chart_type"]
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
+    
     df = selected_clean.copy()
     
     # Common helpers
@@ -289,7 +292,6 @@ with tab2:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"
         
-    # Buttons
     bcols = st.columns(3)
     if bcols[0].button("Scatter"):
         st.session_state["chart_type"] = "Scatter"
@@ -297,9 +299,6 @@ with tab2:
         st.session_state["chart_type"] = "Line"
     if bcols[2].button("Map"):
         st.session_state["chart_type"] = "Map"
-
-    chart_type = st.session_state["chart_type"]
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
 
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
@@ -311,7 +310,7 @@ with tab2:
     )
 
     # Size
-    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
         label="Size (optional)",
         options=["(none)"] + num_cols,
