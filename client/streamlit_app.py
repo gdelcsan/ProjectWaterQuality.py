@@ -441,6 +441,80 @@ with tab4:
         except requests.exceptions.RequestException as e:
             st.error(f"Could not reach /api/observations\n{e}")
 
+    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
+
+    # Use the cleaned, numeric columns from the currently selected dataset
+    df = selected_clean.copy()
+    num_cols = df.select_dtypes(include="number").columns.tolist()
+    if not num_cols:
+        st.warning("No numeric columns found in the selected dataset.")
+    else:
+        metric = st.selectbox(
+            label="Column",
+            options=num_cols,
+            index=0,
+            label_visibility="collapsed"
+        )
+
+        st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Method</p>", unsafe_allow_html=True)
+        method = st.selectbox(
+            label="Method",
+            options=["IQR", "Z-score"],
+            index=0,
+            label_visibility="collapsed"
+        )
+
+        if method == "IQR":
+            k = st.number_input("IQR multiplier (k)", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+        else:
+            k = st.number_input("Z-score threshold (k)", min_value=0.5, max_value=10.0, value=3.0, step=0.1)
+
+        include = st.selectbox(
+            "Return detail",
+            options=["rows", "values", "minimal"],
+            index=0,
+            help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
+        )
+
+        if st.button("Re-check outliers", type="primary"):
+            try:
+                params = {
+                    "field": metric,
+                    "method": method.lower(),
+                    "k": k,
+                    "dataset": selected_dataset_name,  # keep analysis scoped to current dataset
+                    "include": include
+                }
+                url = f"{BASE_URL}/api/outliers"
+                r = requests.get(url, params=params, timeout=12)
+                data = r.json()
+
+                if r.ok:
+                    # Expect a list of records
+                    if isinstance(data, list):
+                        st.success(f"Flagged records: {len(data)}")
+                        # Prefer displaying the 'record' dict if present; else the whole item
+                        rows = []
+                        for item in data:
+                            if "record" in item and isinstance(item["record"], dict):
+                                row = {"row_index": item.get("row_index"), **item["record"]}
+                            else:
+                                row = item
+                            rows.append(row)
+                        if rows:
+                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
+                        else:
+                            st.info("No outliers found for the chosen parameters.")
+                    else:
+                        st.write(data)
+                else:
+                    if isinstance(data, dict) and "error" in data:
+                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                    else:
+                        r.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
+
 with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
