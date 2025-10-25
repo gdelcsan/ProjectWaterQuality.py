@@ -96,7 +96,7 @@ df4clean = pd.read_csv("./database/cleaned_2021-dec16.csv")
 df1clean = pd.read_csv("./database/cleaned_2022-oct7.csv")
 df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
 
-all_dfs = [df1, df2, df3, df4, df1clean, df2clean, df3clean, df4clean]
+all_dfs = [df1, df2, df3, df4]
 
 ##datasets for drop down
 datasets = {
@@ -115,13 +115,13 @@ def find_existing_col(dfs, aliases):
     """Return the first alias that exists in ANY dataframe; else None."""
     for name in aliases:
         for d in dfs:
-            if hasattr(d, "columns") and name in d.columns:
+            if name in d.columns:
                 return name
     return None
 
 def numeric_series(df, col):
     """Return numeric series (coerced) for df[col], or empty Series if not present."""
-    if not hasattr(df, "columns") or col not in df.columns:
+    if col not in df.columns:
         return pd.Series(dtype="float64")
     return pd.to_numeric(df[col], errors="coerce")
 
@@ -129,14 +129,13 @@ def global_min_max(dfs, col):
     """Return (min, max) across dfs[col], skipping NaNs and missing columns."""
     vals = []
     for d in dfs:
-        if hasattr(d, "columns") and col in d.columns:
+        if col in d.columns:
             s = numeric_series(d, col).dropna()
             if not s.empty:
                 vals.extend(s.tolist())
     if not vals:
         return None, None
-    s = pd.Series(vals)
-    return float(s.min()), float(s.max())
+    return float(pd.Series(vals).min()), float(pd.Series(vals).max())
 
 # Column aliases to handle inconsistent CSV headers
 TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)', 'Temperature (c)']
@@ -155,16 +154,15 @@ if ODO_COL is None:
 if SAL_COL is None:
     st.error(f"pH/Salinity column not found. Tried any of: {PH_ALIASES}.")
 
-# =========================
 # Control Panel (Sidebar)
-# =========================
 st.sidebar.header("Control Panel")
 
+##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-    "Select dataset:",
-    list(datasets.keys()),
-    index=0
-)
+        "Select dataset:",
+        list(datasets.keys()),
+        index=0
+    )
 selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
@@ -172,7 +170,9 @@ if TEMP_COL:
     temp_min_val, temp_max_val = global_min_max(all_dfs, TEMP_COL)
     if temp_min_val is not None:
         temp_min, temp_max = st.sidebar.slider(
-            f"{TEMP_COL}", temp_min_val, temp_max_val, (temp_min_val, temp_max_val)
+            f"{TEMP_COL}",
+            temp_min_val, temp_max_val,
+            (temp_min_val, temp_max_val)
         )
     else:
         st.sidebar.info(f"No numeric data found for {TEMP_COL}.")
@@ -180,12 +180,14 @@ if TEMP_COL:
 else:
     temp_min = temp_max = None
 
-# 2) pH slider
+# 2) Salinity (pH) slider
 if SAL_COL:
     sal_min_val, sal_max_val = global_min_max(all_dfs, SAL_COL)
     if sal_min_val is not None:
         sal_min, sal_max = st.sidebar.slider(
-            f"{SAL_COL}", sal_min_val, sal_max_val, (sal_min_val, sal_max_val)
+            f"{SAL_COL}",
+            sal_min_val, sal_max_val,
+            (sal_min_val, sal_max_val)
         )
     else:
         st.sidebar.info(f"No numeric data found for {SAL_COL}.")
@@ -198,7 +200,9 @@ if ODO_COL:
     odo_min_val, odo_max_val = global_min_max(all_dfs, ODO_COL)
     if odo_min_val is not None:
         odo_min, odo_max = st.sidebar.slider(
-            f"{ODO_COL}", odo_min_val, odo_max_val, (odo_min_val, odo_max_val)
+            f"{ODO_COL}",
+            odo_min_val, odo_max_val,
+            (odo_min_val, odo_max_val)
         )
     else:
         st.sidebar.info(f"No numeric data found for {ODO_COL}.")
@@ -206,24 +210,12 @@ if ODO_COL:
 else:
     odo_min = odo_max = None
 
-# NOTE: Sliders are for exploration; no filtering is applied yet. Add filtering if desired.
+# 4) Pagination Inputs
+#limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
+#page = st.sidebar.number_input("Page number", 1, value=1)
 
-# =========================
-# Flask API (background) — uses current selected_df
-# =========================
+# Flask API (background)
 flask_app = Flask(__name__)
-
-# Thread-safe handoff of the selected dataset to the Flask thread
-SELECTED_DF = None
-SELECTED_DF_LOCK = threading.Lock()
-
-def _set_selected_df(df):
-    global SELECTED_DF
-    with SELECTED_DF_LOCK:
-        SELECTED_DF = df
-
-# Set once per run (Streamlit reruns on interaction, so this stays fresh)
-_set_selected_df(selected_df)
 
 try:
     mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=500)
@@ -248,27 +240,42 @@ def api_stats():
     Basic numeric stats from the CURRENTLY SELECTED dataset (selected_df).
     Returns a list of records: metric (column), count, mean, std, min, max.
     """
-    with SELECTED_DF_LOCK:
-        local_df = SELECTED_DF.copy() if SELECTED_DF is not None else None
+    try:
+        with SELECTED_DF_LOCK:
+            local_df = SELECTED_DF.copy() if SELECTED_DF is not None else None
 
-    if local_df is None or not hasattr(local_df, "select_dtypes"):
-        return jsonify({"error": "No dataset selected"}), 400
+        if local_df is None or not hasattr(local_df, "select_dtypes"):
+            return jsonify({"error": "No dataset selected"}), 400
 
-    num_df = local_df.select_dtypes(include="number")
-    if num_df.empty:
-        return jsonify({"error": "No numeric columns to summarize for this dataset"}), 400
+        num_df = local_df.select_dtypes(include="number")
+        if num_df.empty:
+            return jsonify({"error": "No numeric columns to summarize for this dataset"}), 400
 
-    summary = (
-        num_df.agg(["count", "mean", "std", "min", "max"])
-        .transpose()
-        .reset_index()
-        .rename(columns={"index": "metric"})
-    )
-    for col in ["mean", "std", "min", "max"]:
-        if col in summary.columns:
-            summary[col] = summary[col].round(3)
+        summary = (
+            num_df.agg(["count", "mean", "std", "min", "max"])
+            .transpose()
+            .reset_index()
+            .rename(columns={"index": "metric"})
+        )
 
-    return jsonify(summary.to_dict(orient="records")), 200
+        # Round numeric cols
+        for col in ["mean", "std", "min", "max"]:
+            if col in summary.columns:
+                summary[col] = summary[col].round(3)
+
+        # Sanitize for JSON: replace inf/-inf with NaN, then NaN -> None
+        summary = summary.replace([np.inf, -np.inf], np.nan)
+        summary = summary.where(pd.notnull(summary), None)
+
+        # Ensure 'metric' is a plain string type
+        if "metric" in summary.columns:
+            summary["metric"] = summary["metric"].astype(str)
+
+        return jsonify(summary.to_dict(orient="records")), 200
+
+    except Exception as e:
+        # Surface the error message instead of a silent 500
+        return jsonify({"error": "internal_error", "detail": str(e)}), 500
 
 def _run_flask():
     flask_app.run(host=FLASK_HOST, port=FLASK_PORT, debug=False, use_reloader=False)
@@ -280,7 +287,7 @@ def _ensure_flask_running():
         t = threading.Thread(target=_run_flask, daemon=True)
         t.start()
         health_url = f"{BASE_URL}/health"
-        for _ in range(100):  # ~10s max
+        for _ in range(60):  # ~6s max
             with suppress(Exception):
                 r = requests.get(health_url, timeout=0.25)
                 if r.ok:
@@ -288,9 +295,7 @@ def _ensure_flask_running():
                     break
             time.sleep(0.1)
 
-# =========================
 # UI
-# =========================
 st.markdown('<div class="header"><h1>Biscayne Bay Water Datasets</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
 tab1, tab3, tab4, tab5 = st.tabs([
@@ -301,16 +306,39 @@ tab1, tab3, tab4, tab5 = st.tabs([
 ])
 
 with tab1:
+
     st.markdown(
         f'<h2 style="color: black;">Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True
-    )
+        unsafe_allow_html=True)
     st.write(selected_df)
+
+    #st.subheader("October 21, 2021")
+    #st.write(df2)
+    #st.subheader("December 16, 2021")
+    #st.write(df1)
+    #st.subheader("October 7, 2022")
+    #st.write(df4)
+    #st.subheader("November 16, 2022")
+    #st.write(df3)
+
+#with tab2:
+    #if st.button("2021 Clean Datasets"):
+        #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
+        #st.write(clean_df)
+
+
+    #st.markdown(
+       # f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',
+        #unsafe_allow_html=True)
+    #st.write(selected_df )
+
 
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
 
     df = selected_df.copy()
+    
+    # Common helpers
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
@@ -328,22 +356,22 @@ with tab3:
         st.session_state["chart_type"] = "Map"
 
     chart_type = st.session_state["chart_type"]
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>",unsafe_allow_html=True)
 
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
-        label="Color (optional)",
-        options=["(none)"] + all_cols,
-        index=0,
-        label_visibility="collapsed" 
+    label="Color (optional)",
+    options=["(none)"] + all_cols,
+    index=0,
+    label_visibility="collapsed" 
     )
 
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Size (optional/numeric)</p>", unsafe_allow_html=True)
     size_opt = st.selectbox(
-        label="Size (optional/numeric)",
-        options=["(none)"] + num_cols,
-        index=0,
-        label_visibility="collapsed" 
+    label="Size (optional/numeric)",
+    options=["(none)"] + num_cols,
+    index=0,
+    label_visibility="collapsed" 
     )
 
     def _opt_kwargs():
@@ -382,26 +410,26 @@ with tab3:
         else:
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Hover data (optional)</p>", unsafe_allow_html=True)
             hover_cols = st.multiselect(
-                label="Hover data (optional)",
-                options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
-                default=[],
-                label_visibility="collapsed" 
+            label="Hover data (optional)",
+            options=["(none)"] + [c for c in all_cols if c not in {lat_col, lon_col}],
+            default=[],
+            label_visibility="collapsed" 
             )
 
             st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Map zoom</p>", unsafe_allow_html=True)
             zoom = st.slider(
-                label="Map zoom",
-                min_value=1,
-                max_value=18,
-                value=17,
-                label_visibility="collapsed" 
+            label="Map zoom",
+            min_value=1,
+            max_value=18,
+            value=17,
+            label_visibility="collapsed" 
             )
 
             fig = px.scatter_mapbox(
                 df,
                 lat=lat_col,
                 lon=lon_col,
-                hover_data=hover_cols if hover_cols else None,
+                hover_data=hover_cols,
                 **_opt_kwargs(),
                 zoom=zoom
             )
@@ -409,16 +437,15 @@ with tab3:
             st.plotly_chart(fig, use_container_width=True)
 
 with tab4:
-    # Start Flask (if not already) and call the API safely
     _ensure_flask_running()
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
         r.raise_for_status()
-        stats = r.json()
-        if isinstance(stats, dict) and "error" in stats:
-            st.warning(stats["error"])
+        data = r.json()
+        if isinstance(data, dict) and "error" in data:
+            st.warning(f"Stats API: {data.get('error')} — {data.get('detail','')}")
         else:
-            st.dataframe(pd.DataFrame(stats), use_container_width=True)
+            st.dataframe(pd.DataFrame(data), use_container_width=True)
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
         
