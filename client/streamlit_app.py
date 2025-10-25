@@ -443,7 +443,6 @@ with tab4:
 
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
 
-    # Use the cleaned, numeric columns from the currently selected dataset
     df = selected_clean.copy()
     num_cols = df.select_dtypes(include="number").columns.tolist()
     if not num_cols:
@@ -453,6 +452,7 @@ with tab4:
             label="Column",
             options=num_cols,
             index=0,
+            key="outliers_column_select", 
             label_visibility="collapsed"
         )
 
@@ -461,28 +461,36 @@ with tab4:
             label="Method",
             options=["IQR", "Z-score"],
             index=0,
+            key="outliers_method_select", 
             label_visibility="collapsed"
         )
 
         if method == "IQR":
-            k = st.number_input("IQR multiplier (k)", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+            k = st.number_input(
+                "IQR multiplier (k)", min_value=0.1, max_value=10.0, value=1.5, step=0.1,
+                key="outliers_k_iqr"  
+            )
         else:
-            k = st.number_input("Z-score threshold (k)", min_value=0.5, max_value=10.0, value=3.0, step=0.1)
+            k = st.number_input(
+                "Z-score threshold (k)", min_value=0.5, max_value=10.0, value=3.0, step=0.1,
+                key="outliers_k_zscore" 
+            )
 
         include = st.selectbox(
             "Return detail",
             options=["rows", "values", "minimal"],
             index=0,
+            key="outliers_include_select", 
             help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
         )
 
-        if st.button("Re-check outliers", type="primary"):
+        if st.button("Re-check outliers", key="outliers_button"):
             try:
                 params = {
                     "field": metric,
                     "method": method.lower(),
                     "k": k,
-                    "dataset": selected_dataset_name,  # keep analysis scoped to current dataset
+                    "dataset": selected_dataset_name,
                     "include": include
                 }
                 url = f"{BASE_URL}/api/outliers"
@@ -490,10 +498,8 @@ with tab4:
                 data = r.json()
 
                 if r.ok:
-                    # Expect a list of records
                     if isinstance(data, list):
                         st.success(f"Flagged records: {len(data)}")
-                        # Prefer displaying the 'record' dict if present; else the whole item
                         rows = []
                         for item in data:
                             if "record" in item and isinstance(item["record"], dict):
@@ -514,7 +520,6 @@ with tab4:
                         r.raise_for_status()
             except requests.exceptions.RequestException as e:
                 st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
-
 with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
