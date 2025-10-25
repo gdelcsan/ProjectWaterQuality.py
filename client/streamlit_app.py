@@ -420,13 +420,6 @@ with tab4:
         label_visibility="collapsed"
     )
 
-    defaults = {
-        "Temperature": (locals().get("temp_min", 0.0), locals().get("temp_max", 0.0)),
-        "pH": (locals().get("sal_min", 0.0), locals().get("sal_max", 0.0)),
-        "ODO (mg/L)": (locals().get("odo_min", 0.0), locals().get("odo_max", 0.0)),
-    }
-    dmin, dmax = defaults[metric]
-
     if st.button("Confirm", key="obs_confirm"):
         try:
             min_key, max_key = metric_map[metric]
