@@ -1,3 +1,4 @@
+from pymongo import ASCENDING, ReplaceOne
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
@@ -19,13 +20,21 @@ except Exception:
     print(f"Error connecting to Mongo: {Exception}")
 
 # Create a new client and connect to the server
-def upload(data):
-    # waits 2 seconds in case more than one user uploads data at the same time
-    time.sleep(2)
-    # existing entries are cleared before insertion
-    if (collection.count_documents({}) > 0):
-        collection.delete_many({})
-    collection.insert_many(data)
+def upload_MONGO(documents):
+    # waits 1 seconds in case more than one user uploads data at the same time
+    time.sleep(1)
+
+    # essentially tells it to override OLD duplicates with new duplicates
+    # if there's no duplicates, then just insert
+    # upsert = update if possible, insert if not 
+    operations = [
+        ReplaceOne(filter = {"Time":doc["Time"]}, replacement = doc, upsert = True)
+        for doc in documents
+    ]
+    
+    result = collection.bulk_write(operations)
+    return f"Number of documents upserted: {result.upserted_count}, Number of documents modified: {result.modified_count}"
+
 
 def helper(field, value):
     selector = ""
