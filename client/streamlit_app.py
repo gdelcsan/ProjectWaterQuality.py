@@ -381,17 +381,20 @@ with tab2:
             label_visibility="collapsed" 
             )
 
-            fig = px.scatter_mapbox(
-                df,
-                lat=lat_col,
-                lon=lon_col,
-                hover_data=hover_cols,
-                **_opt_kwargs(),
-                zoom=zoom
+            fig = px.scatter_map(
+            df,
+            lat=lat_col,
+            lon=lon_col,
+            hover_data=hover_cols,
+            **_opt_kwargs(),
+            zoom=zoom
             )
-            fig.update_layout(mapbox_style="open-street-map", margin=dict(l=0, r=0, t=0, b=0))
+            fig.update_layout(
+            map_style="open-street-map",
+            margin=dict(l=0, r=0, t=0, b=0)
+            )
             st.plotly_chart(fig, use_container_width=True)
-
+            
 with tab3:
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
