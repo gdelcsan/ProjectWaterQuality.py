@@ -407,7 +407,7 @@ with tab4:
 
     metric = st.selectbox(
         label="Columns",
-        options=[("none")] + num_cols,
+        options=num_cols,
         index=0,
         label_visibility="collapsed"
     )
@@ -415,7 +415,7 @@ with tab4:
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Method</p>", unsafe_allow_html=True)
     method = st.selectbox(
         label="Method",
-        options=["(none)", "IQR", "Z-score"],
+        options=["IQR", "Z-score"],
         index=0,
         label_visibility="collapsed"
     )
