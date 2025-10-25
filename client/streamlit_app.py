@@ -492,14 +492,14 @@ with tab4:
     "<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Return detail</p>",
     unsafe_allow_html=True
     )
-        include = st.selectbox(
-            "Return detail",
-            options=["rows", "values", "minimal"],
-            index=0,
-            key="outliers_include_select",
-            label_visibility="collapsed",
-            help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
-        )
+    include = st.selectbox(
+    "Return detail",
+    options=["rows", "values", "minimal"],
+    index=0,
+    key="outliers_include_select",
+    label_visibility="collapsed",
+    help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
+    )
 
         if st.button("Re-check outliers", key="outliers_button"):
             try:
