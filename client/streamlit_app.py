@@ -467,25 +467,25 @@ with tab4:
 
         if method == "IQR":
             st.markdown(
-            "<p style='color:black; font-size:20px; font-weight:400; margin-bottom:0;'>IQR multiplier (k)</p>",
+            "<p style='color:black; font-size:10px; font-weight:400; margin-bottom:0;'>IQR multiplier (k)</p>",
             unsafe_allow_html=True
             )
             k = st.number_input(
             label="IQR multiplier (k)",
             min_value=0.1, max_value=10.0, value=1.5, step=0.1,
             key="outliers_k_iqr",
-            label_visibility="collapsed"  # 👈 hides gray Streamlit label
+            label_visibility="collapsed"  
         )
         else:
             st.markdown(
-            "<p style='color:black; font-size:20px; font-weight:400; margin-bottom:0;'>Z-score threshold (k)</p>",
+            "<p style='color:black; font-size:10px; font-weight:400; margin-bottom:0;'>Z-score threshold (k)</p>",
             unsafe_allow_html=True
             )
             k = st.number_input(
             label="Z-score threshold (k)",
             min_value=0.5, max_value=10.0, value=3.0, step=0.1,
             key="outliers_k_zscore",
-            label_visibility="collapsed"  # 👈 hides gray Streamlit label
+            label_visibility="collapsed"
             )
 
     st.markdown(
