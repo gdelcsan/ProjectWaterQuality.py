@@ -14,14 +14,6 @@ import numpy as np
 from flask import Flask, jsonify
 from pymongo import MongoClient
 
-SELECTED_DF = None
-SELECTED_DF_LOCK = threading.Lock()
-
-def _set_selected_df(df):
-    global SELECTED_DF
-    with SELECTED_DF_LOCK:
-        SELECTED_DF = df
-
 # Configuration
 FLASK_HOST = "127.0.0.1"
 FLASK_PORT = 5050
