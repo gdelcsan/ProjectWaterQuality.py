@@ -270,11 +270,11 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 
 with tab1:
     st.markdown(
-        f'<h2 style="color: black;">Clean Dataset for: {selected_dataset_name}</h2>',
+        f'<h2 style="color: black;">Clean Dataset for {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_clean)
     st.markdown(
-        f'<h2 style="color: black;">Original Dataset for: {selected_dataset_name}</h2>',
+        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_df)
 
@@ -403,9 +403,50 @@ with tab3:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
 with tab4:
-    # Lauren, you can work here
-    # keep in mind the default text-color is white for st.write
-    st.write("Testing")
+    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
+    metric_map = {
+        "Temperature": ("min_temp", "max_temp"),
+        "pH": ("min_sal", "max_sal"),
+        "ODO (mg/L)": ("min_odo", "max_odo"),
+    }
+    metric = st.selectbox(
+        label="Columns",
+        options=list(metric_map.keys()),
+        index=0,
+        label_visibility="collapsed"
+    )
+
+    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Method</p>", unsafe_allow_html=True)
+    method = st.selectbox(
+        label="Method",
+        options=["(none)", "IQR", "Z-score"],
+        index=0,
+        label_visibility="collapsed"
+    )
+
+    if st.button("Confirm"):
+        try:
+            url = f"{BASE_URL}/api/observations"
+            r = requests.get(url, params=params, timeout=6)
+            # Try to parse API-provided JSON (bson util might return arrays/dicts)
+            data = r.json()
+
+            if r.ok:
+                # Normalize to DataFrame if possible
+                if isinstance(data, list):
+                    st.dataframe(pd.DataFrame(data), use_container_width=True)
+                elif isinstance(data, dict) and "error" in data:
+                    st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
+                else:
+                    st.write(data)  # fallback display
+            else:
+                if isinstance(data, dict) and "error" in data:
+                    st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                else:
+                    r.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not reach /api/observations\n{e}")
+        
 
 with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
