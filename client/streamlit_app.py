@@ -405,44 +405,6 @@ with tab3:
 with tab4:
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
 
-    metric = st.selectbox(
-        label="Column",
-        options=num_cols,
-        index=0,
-        label_visibility="collapsed"
-    )
-
-    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Method</p>", unsafe_allow_html=True)
-    method = st.selectbox(
-        label="Method",
-        options=["IQR", "Z-score"],
-        index=0,
-        label_visibility="collapsed"
-    )
-
-    if st.button("Confirm", key="obs_confirm"):
-        try:
-            url = f"{BASE_URL}/api/observations"
-            r = requests.get(url, timeout=8)
-            data = r.json()
-
-            if r.ok:
-                if isinstance(data, list):
-                    st.dataframe(pd.DataFrame(data), use_container_width=True)
-                elif isinstance(data, dict) and "error" in data:
-                    st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
-                else:
-                    st.write(data)
-            else:
-                if isinstance(data, dict) and "error" in data:
-                    st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                else:
-                    r.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            st.error(f"Could not reach /api/observations\n{e}")
-
-    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
-
     df = selected_clean.copy()
     num_cols = df.select_dtypes(include="number").columns.tolist()
     if not num_cols:
