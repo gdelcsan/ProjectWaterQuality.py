@@ -406,9 +406,9 @@ with tab4:
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
 
     metric = st.selectbox(
-        label="Columns",
-        options=num_cols,
-        index=0,
+        label="Column",
+        options=num_cols if len(num_cols) else [],
+        index=0 if len(num_cols) else None,
         label_visibility="collapsed"
     )
 
