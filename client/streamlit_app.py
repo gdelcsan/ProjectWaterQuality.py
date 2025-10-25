@@ -88,7 +88,7 @@ df2clean = pd.read_csv("./database/cleaned_2021-oct21.csv")
 df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
 df4clean = pd.read_csv("./database/cleaned_2021-dec16.csv")
 
-all_dfs = [df1, df2, df3, df4]
+all_dfs = [df1, df2, df3, df4, df1clean, df2clean, df3clean, df4clean]
 
 ##datasets for drop down
 datasets = {
@@ -133,10 +133,12 @@ def global_min_max(dfs, col):
 TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)', 'Temperature (c)']
 ODO_ALIASES  = ['ODO (mg/L)', 'ODO mg/L', 'ODO', 'ODO_mg_L']
 PH_ALIASES   = ['pH', 'PH']
+TIMESTAMP_ALIASES = ['Time']
 
 TEMP_COL = find_existing_col(all_dfs, TEMP_ALIASES)
 ODO_COL  = find_existing_col(all_dfs, ODO_ALIASES)
 SAL_COL  = find_existing_col(all_dfs, PH_ALIASES)
+TIMESTAMP_COL = find_existing_col(all_dfs, TIMESTAMP_ALIASES)
 
 # Warn clearly if any are missing everywhere
 if TEMP_COL is None:
@@ -145,6 +147,8 @@ if ODO_COL is None:
     st.error(f"ODO column not found. Tried any of: {ODO_ALIASES}.")
 if SAL_COL is None:
     st.error(f"pH/Salinity column not found. Tried any of: {PH_ALIASES}.")
+if TIMESTAMP_COL is None:
+        st.error(f"Time column not found. Tried any of: {TIMESTAMP_ALIASES}.")
 
 # Control Panel (Sidebar)
 st.sidebar.header("Control Panel")
@@ -201,6 +205,40 @@ if ODO_COL:
         odo_min = odo_max = None
 else:
     odo_min = odo_max = None
+
+#Limit
+limit_min, limit_max = st.sidebar.slider(
+    "Limit",
+    100,
+    1000,
+    (100, 500)
+)
+
+#TimeStamp
+if TIMESTAMP_COL:
+    ##st.sidebar.markdown(f"### Filter by {TIMESTAMP_COL}")
+
+    start_time_str = st.sidebar.text_input("Start time (MM:SS.s)", value="00:00.0")
+    end_time_str   = st.sidebar.text_input("End time (MM:SS.s)", value="30:00.0")  # adjust max as needed
+
+    def time_to_sec(t):
+        try:
+            m, s = t.split(":")
+            return float(m) * 60 + float(s)
+        except:
+            return None
+
+    start_time_sec = time_to_sec(start_time_str)
+    end_time_sec   = time_to_sec(end_time_str)
+
+    if start_time_sec is None or end_time_sec is None:
+        st.sidebar.warning("Invalid timestamp format! Use MM:SS.s")
+        time_min_val = time_max_val = None
+    else:
+        time_min_val = start_time_sec
+        time_max_val = end_time_sec
+else:
+    time_min_val = time_max_val = None
 
 # 4) Pagination Inputs
 #limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
