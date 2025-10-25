@@ -14,6 +14,14 @@ import numpy as np
 from flask import Flask, jsonify
 from pymongo import MongoClient
 
+SELECTED_DF = None
+SELECTED_DF_LOCK = threading.Lock()
+
+def _set_selected_df(df):
+    global SELECTED_DF
+    with SELECTED_DF_LOCK:
+        SELECTED_DF = df
+
 # Configuration
 FLASK_HOST = "127.0.0.1"
 FLASK_PORT = 5050
@@ -164,7 +172,11 @@ selected_dataset_name = st.sidebar.selectbox(
         list(datasets.keys()),
         index=0
     )
+
 selected_df = datasets[selected_dataset_name]
+
+from app import _set_selected_df
+_set_selected_df(selected_df)
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
@@ -452,13 +464,19 @@ with tab3:
 with tab4:
     _ensure_flask_running()
     try:
-        r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
-        r.raise_for_status()
-        data = r.json()
-        if isinstance(data, dict) and "error" in data:
-            st.warning(f"Stats API: {data.get('error')} — {data.get('detail','')}")
+        r = requests.get(f"{BASE_URL}/api/stats", timeout=4)
+        # Show server-provided JSON errors without raising
+        data = r.json() if r.headers.get("content-type", "").startswith("application/json") else None
+        if r.ok:
+            if isinstance(data, dict) and "error" in data:
+                st.warning(f"Stats API: {data.get('error')} — {data.get('detail','')}")
+            else:
+                st.dataframe(pd.DataFrame(data), use_container_width=True)
         else:
-            st.dataframe(pd.DataFrame(data), use_container_width=True)
+            if isinstance(data, dict) and "error" in data:
+                st.error(f"Stats API error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+            else:
+                r.raise_for_status()
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
         
