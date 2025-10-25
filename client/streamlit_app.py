@@ -405,15 +405,9 @@ with tab3:
 with tab4:
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
 
-    metric_map = {
-        "Temperature": ("min_temp", "max_temp"),
-        "pH": ("min_sal", "max_sal"),
-        "ODO (mg/L)": ("min_odo", "max_odo"),
-    }
-
     metric = st.selectbox(
         label="Columns",
-        options=list(metric_map.keys()),
+        options=[("none")] + num_col,
         index=0,
         label_visibility="collapsed"
     )
