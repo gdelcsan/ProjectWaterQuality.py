@@ -404,11 +404,13 @@ with tab3:
 
 with tab4:
     st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Columns</p>", unsafe_allow_html=True)
+
     metric_map = {
         "Temperature": ("min_temp", "max_temp"),
         "pH": ("min_sal", "max_sal"),
         "ODO (mg/L)": ("min_odo", "max_odo"),
     }
+
     metric = st.selectbox(
         label="Columns",
         options=list(metric_map.keys()),
@@ -424,41 +426,51 @@ with tab4:
         label_visibility="collapsed"
     )
 
-    c3, c4 = st.columns(2)
-    limit = int(c3.number_input("Limit", min_value=1, max_value=1000, value=100, step=1))
-    skip = int(c4.number_input("Skip", min_value=0, value=0, step=1))
+    defaults = {
+        "Temperature": (locals().get("temp_min", 0.0), locals().get("temp_max", 0.0)),
+        "pH": (locals().get("sal_min", 0.0), locals().get("sal_max", 0.0)),
+        "ODO (mg/L)": (locals().get("odo_min", 0.0), locals().get("odo_max", 0.0)),
+    }
+    dmin, dmax = defaults[metric]
 
-    min_key, max_key = metric_map[metric]
-    params = {"limit": limit, "skip": skip}
+    st.markdown("<p style='color:black; font-size:16px; font-weight:600; margin-bottom:0;'>Filter range (optional)</p>", unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    min_val = c1.number_input("Min", value=float(dmin), key=f"{metric}_min_input")
+    max_val = c2.number_input("Max", value=float(dmax), key=f"{metric}_max_input")
 
-    if min_val is not None:
-        params[min_key] = min_val
-    if max_val is not None:
-        params[max_key] = max_val
-        
-    if st.button("Confirm"):
+    if st.button("Confirm", key="obs_confirm"):
         try:
-            url = f"{BASE_URL}/api/observations"
-            r = requests.get(url, params=params, timeout=6)
-            # Try to parse API-provided JSON (bson util might return arrays/dicts)
-            data = r.json()
+            min_key, max_key = metric_map[metric]
+            params = {}
 
-            if r.ok:
-                # Normalize to DataFrame if possible
-                if isinstance(data, list):
-                    st.dataframe(pd.DataFrame(data), use_container_width=True)
-                elif isinstance(data, dict) and "error" in data:
-                    st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
-                else:
-                    st.write(data)  # fallback display
+            # Include min/max only if provided
+            if min_val is not None:
+                params[min_key] = min_val
+            if max_val is not None:
+                params[max_key] = max_val
+
+            # Check min <= max
+            if (min_key in params and max_key in params) and (params[min_key] > params[max_key]):
+                st.warning("Min must be ≤ Max.")
             else:
-                if isinstance(data, dict) and "error" in data:
-                    st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                url = f"{BASE_URL}/api/observations"
+                r = requests.get(url, params=params, timeout=8)
+                data = r.json()
+
+                if r.ok:
+                    if isinstance(data, list):
+                        st.dataframe(pd.DataFrame(data), use_container_width=True)
+                    elif isinstance(data, dict) and "error" in data:
+                        st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
+                    else:
+                        st.write(data)
                 else:
-                    r.raise_for_status()
+                    if isinstance(data, dict) and "error" in data:
+                        st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                    else:
+                        r.raise_for_status()
         except requests.exceptions.RequestException as e:
             st.error(f"Could not reach /api/observations\n{e}")
-        
 
 with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
