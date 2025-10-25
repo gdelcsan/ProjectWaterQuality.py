@@ -270,18 +270,18 @@ tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
 
 with tab1:
     st.markdown(
-        f'<h2 style="color: black;">Dataset for Original: {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_df)
-    st.markdown(
-        f'<h2 style="color: black;">Dataset for Cleaned: {selected_dataset_name}</h2>',
+        f'<h2 style="color: black;">Clean Dataset for: {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_clean)
+    st.markdown(
+        f'<h2 style="color: black;">Original Dataset for: {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_df)
 
 with tab2:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
 
-    df = selected_df.copy()
+    df = selected_clean.copy()
     
     # Common helpers
     all_cols = df.columns.tolist()
