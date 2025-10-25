@@ -47,7 +47,6 @@ st.markdown("""
         border: none;
         border-radius: 9999px;
         padding: 0.6rem 1.2rem;
-        margin: 0.2rem 0;
         font-weight: 600;
         transition: all 0.2s ease-in-out;
     }
@@ -164,7 +163,6 @@ selected_dataset_name = st.sidebar.selectbox(
         list(datasets.keys()),
         index=0
     )
-
 selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
@@ -238,46 +236,19 @@ def health():
 
 @flask_app.get("/api/stats")
 def api_stats():
-    """
-    Basic numeric stats from the CURRENTLY SELECTED dataset (selected_df).
-    Returns a list of records: metric (column), count, mean, std, min, max.
-    """
-    try:
-        with SELECTED_DF_LOCK:
-            local_df = SELECTED_DF.copy() if SELECTED_DF is not None else None
-
-        if local_df is None or not hasattr(local_df, "select_dtypes"):
-            return jsonify({"error": "No dataset selected"}), 400
-
-        num_df = local_df.select_dtypes(include="number")
-        if num_df.empty:
-            return jsonify({"error": "No numeric columns to summarize for this dataset"}), 400
-
-        summary = (
-            num_df.agg(["count", "mean", "std", "min", "max"])
-            .transpose()
-            .reset_index()
-            .rename(columns={"index": "metric"})
-        )
-
-        # Round numeric cols
-        for col in ["mean", "std", "min", "max"]:
-            if col in summary.columns:
-                summary[col] = summary[col].round(3)
-
-        # Sanitize for JSON: replace inf/-inf with NaN, then NaN -> None
-        summary = summary.replace([np.inf, -np.inf], np.nan)
-        summary = summary.where(pd.notnull(summary), None)
-
-        # Ensure 'metric' is a plain string type
-        if "metric" in summary.columns:
-            summary["metric"] = summary["metric"].astype(str)
-
-        return jsonify(summary.to_dict(orient="records")), 200
-
-    except Exception as e:
-        # Surface the error message instead of a silent 500
-        return jsonify({"error": "internal_error", "detail": str(e)}), 500
+    """Basic numeric stats from cleaned dataset (auto-select numeric cols)."""
+    df = clean_df.copy()
+    num_df = df.select_dtypes(include="number")
+    summary = (
+        num_df.agg(["count", "mean", "std", "min", "max"])
+        .transpose()
+        .reset_index()
+        .rename(columns={"index": "metric"})
+    )
+    for col in ["mean", "std", "min", "max"]:
+        if col in summary.columns:
+            summary[col] = summary[col].round(3)
+    return jsonify(summary.to_dict(orient="records")), 200
 
 def _run_flask():
     flask_app.run(host=FLASK_HOST, port=FLASK_PORT, debug=False, use_reloader=False)
@@ -385,20 +356,8 @@ with tab3:
         return kwargs
 
     if chart_type != "Map":
-        st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>X-axis</p>", unsafe_allow_html=True)
-        x_col = st.selectbox(
-        label="X-axis",
-        options=all_cols,
-        index=0,
-        label_visibility="collapsed"  # hides the default gray label
-        )
-        st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Y-axis</p>", unsafe_allow_html=True)
-        y_col = st.selectbox(
-        label="Y-axis",
-        options=all_cols,
-        index=1 if len(all_cols) > 1 else 0,
-        label_visibility="collapsed"
-        )
+        x_col = st.selectbox("X-axis", all_cols, index=0)
+        y_col = st.selectbox("Y-axis", all_cols, index=1 if len(all_cols) > 1 else 0)
 
         if chart_type == "Scatter":
             fig = px.scatter(df, x=x_col, y=y_col, **_opt_kwargs())
@@ -451,21 +410,13 @@ with tab3:
             st.plotly_chart(fig, use_container_width=True)
 
 with tab4:
+    # Start Flask (if not already) and call the API safely
     _ensure_flask_running()
     try:
-        r = requests.get(f"{BASE_URL}/api/stats", timeout=4)
-        # Show server-provided JSON errors without raising
-        data = r.json() if r.headers.get("content-type", "").startswith("application/json") else None
-        if r.ok:
-            if isinstance(data, dict) and "error" in data:
-                st.warning(f"Stats API: {data.get('error')} — {data.get('detail','')}")
-            else:
-                st.dataframe(pd.DataFrame(data), use_container_width=True)
-        else:
-            if isinstance(data, dict) and "error" in data:
-                st.error(f"Stats API error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-            else:
-                r.raise_for_status()
+        r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
+        r.raise_for_status()
+        stats = r.json()
+        st.dataframe(pd.DataFrame(stats), use_container_width=True)
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
         
