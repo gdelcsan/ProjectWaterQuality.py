@@ -501,18 +501,18 @@ with tab4:
     help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
     )
 
-        if st.button("Re-check outliers", key="outliers_button"):
-            try:
-                params = {
-                    "field": metric,
-                    "method": method.lower(),
-                    "k": k,
-                    "dataset": selected_dataset_name,
-                    "include": include
-                }
-                url = f"{BASE_URL}/api/outliers"
-                r = requests.get(url, params=params, timeout=12)
-                data = r.json()
+    if st.button("Re-check outliers", key="outliers_button"):
+        try:
+            params = {
+            "field": metric,
+            "method": method.lower(),
+            "k": k,
+            "dataset": selected_dataset_name,
+            "include": include
+            }
+            url = f"{BASE_URL}/api/outliers"
+            r = requests.get(url, params=params, timeout=12)
+            data = r.json()
 
                 if r.ok:
                     if isinstance(data, list):
