@@ -297,13 +297,10 @@ with tab1:
 
 with tab2:
     if st.button("2021 Clean Datasets"):
-        #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
-        #st.write(clean_df)
-
-    st.markdown(
-        f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_df )
+        st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
+        st.write(clean_df)
+        st.markdown(f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',unsafe_allow_html=True)
+        st.write(selected_df )
 
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
