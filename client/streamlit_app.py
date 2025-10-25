@@ -167,7 +167,7 @@ selected_df = datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
-    temp_min_val, temp_max_val = global_min_max(all_dfs, TEMP_COL)
+    temp_min_val, temp_max_val = global_min_max(selected_df, TEMP_COL)
     if temp_min_val is not None:
         temp_min, temp_max = st.sidebar.slider(
             f"{TEMP_COL}",
@@ -182,7 +182,7 @@ else:
 
 # 2) Salinity (pH) slider
 if SAL_COL:
-    sal_min_val, sal_max_val = global_min_max(all_dfs, SAL_COL)
+    sal_min_val, sal_max_val = global_min_max(selected_df, SAL_COL)
     if sal_min_val is not None:
         sal_min, sal_max = st.sidebar.slider(
             f"{SAL_COL}",
@@ -197,7 +197,7 @@ else:
 
 # 3) ODO slider
 if ODO_COL:
-    odo_min_val, odo_max_val = global_min_max(all_dfs, ODO_COL)
+    odo_min_val, odo_max_val = global_min_max(selected_df, ODO_COL)
     if odo_min_val is not None:
         odo_min, odo_max = st.sidebar.slider(
             f"{ODO_COL}",
@@ -237,7 +237,7 @@ def health():
 @flask_app.get("/api/stats")
 def api_stats():
     """Basic numeric stats from cleaned dataset (auto-select numeric cols)."""
-    df = clean_df.copy()
+    df = selected_df.copy()
     num_df = df.select_dtypes(include="number")
     summary = (
         num_df.agg(["count", "mean", "std", "min", "max"])
@@ -410,7 +410,6 @@ with tab3:
             st.plotly_chart(fig, use_container_width=True)
 
 with tab4:
-    # Start Flask (if not already) and call the API safely
     _ensure_flask_running()
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
