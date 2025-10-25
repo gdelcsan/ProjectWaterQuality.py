@@ -1,3 +1,4 @@
+from pymongo import ASCENDING, ReplaceOne
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
@@ -5,22 +6,35 @@ import os
 import time
 
 load_dotenv()
-username = os.getenv('MONGO_USR')
-password = os.getenv('MONGO_PSS')
-domain = os.getenv('MONGO_DOMAIN')
-uri = "mongodb+srv://" + username + ":" + password + domain + "/?retryWrites=true&w=majority&appName=bbp"
-client = MongoClient(uri, server_api=ServerApi('1'))
-db = client['water_quality_data']
-collection = db['asv_1']
+try:
+    USERNAME = os.getenv('MONGO_USR')
+    PASSWORD = os.getenv('MONGO_PSS')
+    DOMAIN = os.getenv('MONGO_DOMAIN')
+    uri = "mongodb+srv://" + USERNAME + ":" + PASSWORD + DOMAIN + "/?retryWrites=true&w=majority&appName=bbp"
+    client = MongoClient(uri, server_api=ServerApi('1'))
+    db = client['water_quality_data']
+    collection = db['asv_1']
+    mongo_OK = True
+except Exception:
+    mongo_OK = False
+    print(f"Error connecting to Mongo: {Exception}")
 
 # Create a new client and connect to the server
-def upload(data):
-    # waits 2 seconds in case more than one user uploads data at the same time
-    time.sleep(2)
-    # existing entries are cleared before insertion
-    if (collection.count_documents({}) > 0):
-        collection.delete_many({})
-    collection.insert_many(data)
+def upload_MONGO(documents):
+    # waits 1 seconds in case more than one user uploads data at the same time
+    time.sleep(1)
+
+    # essentially tells it to override OLD duplicates with new duplicates
+    # if there's no duplicates, then just insert
+    # upsert = update if possible, insert if not 
+    operations = [
+        ReplaceOne(filter = {"Time":doc["Time"]}, replacement = doc, upsert = True)
+        for doc in documents
+    ]
+    
+    result = collection.bulk_write(operations)
+    return f"Number of documents upserted: {result.upserted_count}, Number of documents modified: {result.modified_count}"
+
 
 def helper(field, value):
     selector = ""
@@ -65,3 +79,4 @@ def query(params):
     else:
         return ({"count": count, "items": cursor.to_list()})
     
+
