@@ -278,7 +278,7 @@ with tab1:
     st.write(selected_df)
 
 with tab2:
-    st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
+    st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name} Plotly Charts</h3>', unsafe_allow_html=True)
     
     chart_type = st.session_state["chart_type"]
     st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
@@ -292,7 +292,7 @@ with tab2:
     if "chart_type" not in st.session_state:
         st.session_state["chart_type"] = "Map"
         
-    bcols = st.columns(3)
+    bcols = st.columns([1, 1, 1], gap="small")
     if bcols[0].button("Scatter"):
         st.session_state["chart_type"] = "Scatter"
     if bcols[1].button("Line"):
