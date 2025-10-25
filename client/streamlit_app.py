@@ -424,6 +424,18 @@ with tab4:
         label_visibility="collapsed"
     )
 
+    c3, c4 = st.columns(2)
+    limit = int(c3.number_input("Limit", min_value=1, max_value=1000, value=100, step=1))
+    skip = int(c4.number_input("Skip", min_value=0, value=0, step=1))
+
+    min_key, max_key = metric_map[metric]
+    params = {"limit": limit, "skip": skip}
+
+    if min_val is not None:
+        params[min_key] = min_val
+    if max_val is not None:
+        params[max_key] = max_val
+        
     if st.button("Confirm"):
         try:
             url = f"{BASE_URL}/api/observations"
