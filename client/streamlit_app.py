@@ -530,11 +530,11 @@ with tab4:
                             st.info("No outliers found for the chosen parameters.")
                     else:
                         st.write(data)
+            else:
+                if isinstance(data, dict) and "error" in data:
+                    st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
                 else:
-                    if isinstance(data, dict) and "error" in data:
-                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                    else:
-                        r.raise_for_status()
+                    r.raise_for_status()
             except requests.exceptions.RequestException as e:
                 st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
 with tab5:
