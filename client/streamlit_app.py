@@ -327,8 +327,20 @@ with tab2:
         return kwargs
 
     if chart_type != "Map":
-        x_col = st.selectbox("X-axis", all_cols, index=0)
-        y_col = st.selectbox("Y-axis", all_cols, index=1 if len(all_cols) > 1 else 0)
+        st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>X-axis</p>", unsafe_allow_html=True)
+        x_col = st.selectbox(
+        label="X-axis",
+        options=all_cols,
+        index=0,
+        label_visibility="collapsed" 
+        )
+        st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Y-axis</p>", unsafe_allow_html=True)
+        y_col = st.selectbox(
+        label="Y-axis",
+        options=all_cols,
+        index=1 if len(all_cols) > 1 else 0,
+        label_visibility="collapsed"
+        )
 
         if chart_type == "Scatter":
             fig = px.scatter(df, x=x_col, y=y_col, **_opt_kwargs())
