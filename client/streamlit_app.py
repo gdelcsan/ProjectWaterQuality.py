@@ -433,11 +433,6 @@ with tab4:
     }
     dmin, dmax = defaults[metric]
 
-    st.markdown("<p style='color:black; font-size:16px; font-weight:600; margin-bottom:0;'>Filter range (optional)</p>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
-    min_val = c1.number_input("Min", value=float(dmin), key=f"{metric}_min_input")
-    max_val = c2.number_input("Max", value=float(dmax), key=f"{metric}_max_input")
-
     if st.button("Confirm", key="obs_confirm"):
         try:
             min_key, max_key = metric_map[metric]
@@ -449,7 +444,6 @@ with tab4:
             if max_val is not None:
                 params[max_key] = max_val
 
-            # Check min <= max
             if (min_key in params and max_key in params) and (params[min_key] > params[max_key]):
                 st.warning("Min must be ≤ Max.")
             else:
