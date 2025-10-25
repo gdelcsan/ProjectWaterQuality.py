@@ -422,34 +422,22 @@ with tab4:
 
     if st.button("Confirm", key="obs_confirm"):
         try:
-            min_key, max_key = metric_map[metric]
-            params = {}
+            url = f"{BASE_URL}/api/observations"
+            r = requests.get(url, timeout=8)
+            data = r.json()
 
-            # Include min/max only if provided
-            if min_val is not None:
-                params[min_key] = min_val
-            if max_val is not None:
-                params[max_key] = max_val
-
-            if (min_key in params and max_key in params) and (params[min_key] > params[max_key]):
-                st.warning("Min must be ≤ Max.")
-            else:
-                url = f"{BASE_URL}/api/observations"
-                r = requests.get(url, params=params, timeout=8)
-                data = r.json()
-
-                if r.ok:
-                    if isinstance(data, list):
-                        st.dataframe(pd.DataFrame(data), use_container_width=True)
-                    elif isinstance(data, dict) and "error" in data:
-                        st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
-                    else:
-                        st.write(data)
+            if r.ok:
+                if isinstance(data, list):
+                    st.dataframe(pd.DataFrame(data), use_container_width=True)
+                elif isinstance(data, dict) and "error" in data:
+                    st.warning(f"API: {data.get('error')} — {data.get('detail','')}")
                 else:
-                    if isinstance(data, dict) and "error" in data:
-                        st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                    else:
-                        r.raise_for_status()
+                    st.write(data)
+            else:
+                if isinstance(data, dict) and "error" in data:
+                    st.error(f"/api/observations error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                else:
+                    r.raise_for_status()
         except requests.exceptions.RequestException as e:
             st.error(f"Could not reach /api/observations\n{e}")
 
