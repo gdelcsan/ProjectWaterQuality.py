@@ -279,8 +279,11 @@ with tab1:
 
 with tab2:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name} Plotly Charts</h3>', unsafe_allow_html=True)
-    
+
     df = selected_clean.copy()
+
+    chart_type = st.session_state.get("chart_type", "Map")
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
     
     # Common helpers
     all_cols = df.columns.tolist()
@@ -296,9 +299,6 @@ with tab2:
         st.session_state["chart_type"] = "Line"
     if bcols[2].button("Map"):
         st.session_state["chart_type"] = "Map"
-
-    chart_type = st.session_state.get("chart_type", "Map")
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
 
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
