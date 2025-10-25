@@ -467,7 +467,7 @@ with tab4:
 
         if method == "IQR":
             st.markdown(
-            "<p style='color:black; font-size:10px; font-weight:400; margin-bottom:0;'>IQR multiplier (k)</p>",
+            "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>IQR multiplier (k)</p>",
             unsafe_allow_html=True
             )
             k = st.number_input(
@@ -478,7 +478,7 @@ with tab4:
         )
         else:
             st.markdown(
-            "<p style='color:black; font-size:10px; font-weight:400; margin-bottom:0;'>Z-score threshold (k)</p>",
+            "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Z-score threshold (k)</p>",
             unsafe_allow_html=True
             )
             k = st.number_input(
@@ -489,7 +489,7 @@ with tab4:
             )
 
     st.markdown(
-    "<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Return detail</p>",
+    "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Return detail</p>",
     unsafe_allow_html=True
     )
     include = st.selectbox(
