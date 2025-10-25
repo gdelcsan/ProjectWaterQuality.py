@@ -1,27 +1,21 @@
-import os
-import threading
-import time
-from contextlib import suppress
-from datetime import datetime
 
 import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-from numpy.random import default_rng as rng
+from dotenv import load_dotenv
 import numpy as np
+import os
 
-from flask import Flask, jsonify
-from pymongo import MongoClient
-
-# Configuration
+# configuration
+load_dotenv()
+"""
 FLASK_HOST = "127.0.0.1"
 FLASK_PORT = 5050
 BASE_URL = f"http://{FLASK_HOST}:{FLASK_PORT}"
+"""
 
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
-MONGO_DB = os.getenv("MONGO_DB", "biscaynebay")
-MONGO_COLL = os.getenv("MONGO_COLL", "readings")
+BASE_URL = os.getenv("FLASK_URL")
 
 st.set_page_config(page_title="Biscayne Bay Water Datasets", page_icon="🌊", layout="wide")
 
@@ -84,31 +78,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Load data
-df2 = pd.read_csv("./database/2021-oct21.csv")
-df4 = pd.read_csv("./database/2021-dec16.csv")
 df1 = pd.read_csv("./database/2022-oct7.csv")
+df2 = pd.read_csv("./database/2021-oct21.csv")
 df3 = pd.read_csv("./database/2022-nov16.csv")
-
-#clean_df = pd.read_csv("./database/cleaned_data.csv")
-
-df2clean = pd.read_csv("./database/cleaned_2021-oct21.csv")
-df4clean = pd.read_csv("./database/cleaned_2021-dec16.csv")
-df1clean = pd.read_csv("./database/cleaned_2022-oct7.csv")
-df3clean = pd.read_csv("./database/cleaned_2022-nov16.csv")
-
+df4 = pd.read_csv("./database/2021-dec16.csv")
 all_dfs = [df1, df2, df3, df4]
 
 ##datasets for drop down
 datasets = {
-    "Original: Oct 21, 2021": df2,
-    "Original: Dec 16, 2021": df4,
-    "Original: Oct 7, 2022": df1,
-    "Original: Nov 16, 2022": df3,
-    "Cleaned: Oct 21, 2021": df2clean,
-    "Cleaned: Dec 16, 2021": df4clean,
-    "Cleaned: Oct 7, 2022": df1clean,
-    "Cleaned: Nov 16, 2022": df3clean,
+    "Oct 7, 2022": df1,
+    "Oct 21, 2021": df2,
+    "Nov 16, 2022": df3,
+    "Dec 16, 2021": df4,
 }
+
+clean_datasets = {
+    "Oct 7, 2022": None,
+    "Oct 21, 2021": None,
+    "Nov 16, 2022": None,
+    "Dec 16, 2021": None,
+}
+
+def check_exceptions(filepath):
+    try:
+        df = pd.read_csv(filepath)
+    except FileNotFoundError:
+        df = pd.DataFrame()
+    return df
 
 # Helpers: resolve column names & numeric ranges safely
 def find_existing_col(dfs, aliases):
@@ -137,6 +133,39 @@ def global_min_max(dfs, col):
         return None, None
     return float(pd.Series(vals).min()), float(pd.Series(vals).max())
 
+def clean(df, filepath):
+    # ZScore Formula
+    # zscore = ((X - mean) / standard deviation))
+
+    # Specifying columns with only numeric values
+    new_df = df.select_dtypes(include='number')
+
+    # Using Formula
+    df_zscore = (new_df - new_df.mean()) / new_df.std(ddof=0)
+
+    # Outliers that have |z| > 3
+    outliers = (df_zscore.abs() > 3).any(axis=1)
+
+    totalrows = len(df)  # number of rows in data
+    removedrows = outliers.sum()  # number of rows removed
+    remainingrows = totalrows - removedrows  # remaininggrows
+
+    # Removing outliers
+    cleaned_dataset = df[~outliers]
+
+    # Moving "timestamp" column to be the first one
+    moved_column = cleaned_dataset.pop("Time")
+    cleaned_dataset.insert(0, "Time", moved_column)
+
+    # Generating csv, printing report, and sending request to flask with json data, to upload to MongoDB
+    cleaned_dataset.to_csv(filepath, index = False)
+    report = f"{filepath}: Removed {totalrows - removedrows} outliers (from total of {totalrows} rows to remaining rows of {remainingrows})"
+    print(report)
+
+    response = requests.post(BASE_URL + "/api/upload", json=(cleaned_dataset.replace({np.nan: None})).to_dict(orient="records"))
+    print(f"Status code of uploading to MongoDB: {response.status_code}")
+    return cleaned_dataset
+
 # Column aliases to handle inconsistent CSV headers
 TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)', 'Temperature (c)']
 ODO_ALIASES  = ['ODO (mg/L)', 'ODO mg/L', 'ODO', 'ODO_mg_L']
@@ -161,9 +190,22 @@ st.sidebar.header("Control Panel")
 selected_dataset_name = st.sidebar.selectbox(
         "Select dataset:",
         list(datasets.keys()),
-        index=0
-    )
+        index=0,
+)
+
 selected_df = datasets[selected_dataset_name]
+
+# Responsible for cleaning csv files if they're initially missing
+i = 0
+keysList = list(clean_datasets.keys())
+for str in ["./database/cleaned_2022-oct7.csv", "./database/cleaned_2021-oct21.csv", "./database/cleaned_2022-nov16.csv", "./database/cleaned_2021-dec16.csv"]:
+    df = check_exceptions(str)
+    if df.empty:
+        df = clean(datasets[keysList[i]], str)
+    clean_datasets.update({keysList[i]: df})
+    i += 1
+
+selected_clean = clean_datasets[selected_dataset_name]
 
 # 1) Temperature slider (only if column found and has data)
 if TEMP_COL:
@@ -214,92 +256,27 @@ else:
 #limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
 #page = st.sidebar.number_input("Page number", 1, value=1)
 
-# Flask API (background)
-flask_app = Flask(__name__)
+# Streamlit UI
+st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
-try:
-    mongo_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=500)
-    _ = mongo_client.server_info()  # quick ping
-    mongo_db = mongo_client[MONGO_DB]
-    mongo_coll = mongo_db[MONGO_COLL]
-    MONGO_OK = True
-except Exception:
-    mongo_client = None
-    mongo_db = None
-    mongo_coll = None
-    MONGO_OK = False
-
-@flask_app.get("/health")
-def health():
-    status = {"status": "ok", "mongo": "up" if MONGO_OK else "down"}
-    return jsonify(status), 200
-
-@flask_app.get("/api/stats")
-def api_stats():
-    """Basic numeric stats from cleaned dataset (auto-select numeric cols)."""
-    df = clean_df.copy()
-    num_df = df.select_dtypes(include="number")
-    summary = (
-        num_df.agg(["count", "mean", "std", "min", "max"])
-        .transpose()
-        .reset_index()
-        .rename(columns={"index": "metric"})
-    )
-    for col in ["mean", "std", "min", "max"]:
-        if col in summary.columns:
-            summary[col] = summary[col].round(3)
-    return jsonify(summary.to_dict(orient="records")), 200
-
-def _run_flask():
-    flask_app.run(host=FLASK_HOST, port=FLASK_PORT, debug=False, use_reloader=False)
-
-def _ensure_flask_running():
-    if "flask_started" not in st.session_state:
-        st.session_state.flask_started = False
-    if not st.session_state.flask_started:
-        t = threading.Thread(target=_run_flask, daemon=True)
-        t.start()
-        health_url = f"{BASE_URL}/health"
-        for _ in range(60):  # ~6s max
-            with suppress(Exception):
-                r = requests.get(health_url, timeout=0.25)
-                if r.ok:
-                    st.session_state.flask_started = True
-                    break
-            time.sleep(0.1)
-
-# UI
-st.markdown('<div class="header"><h1>Biscayne Bay Water Datasets</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
-
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "Datasets",
     "Plotly Charts",
     "Statistics",
+    "Outliers",
     "Code",
     "Contributors"
 ])
 
 with tab1:
     st.markdown(
-        f'<h2 style="color: black;">Dataset for {selected_dataset_name}</h2>',
+        f'<h2 style="color: black;">Dataset for Original: {selected_dataset_name}</h2>',
         unsafe_allow_html=True)
     st.write(selected_df)
-
-    #st.subheader("October 21, 2021")
-    #st.write(df2)
-    #st.subheader("December 16, 2021")
-    #st.write(df1)
-    #st.subheader("October 7, 2022")
-    #st.write(df4)
-    #st.subheader("November 16, 2022")
-    #st.write(df3)
-
-#with tab2:
-    #if st.button("2021 Clean Datasets"):
-        #st.markdown('<h3 style="color:#000000;">Clean Dataset</h3>', unsafe_allow_html=True)
-        #st.write(clean_df)
-        #st.markdown(f'<h2 style="color: black;">Cleaned Dataset for {selected_dataset_name}</h2>',unsafe_allow_html=True)
-        #st.write(selected_df )
+    st.markdown(
+        f'<h2 style="color: black;">Dataset for Cleaned: {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_clean)
 
 with tab2:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name}</h3>', unsafe_allow_html=True)
@@ -417,8 +394,6 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
 
 with tab3:
-    # Start Flask (if not already) and call the API safely
-    _ensure_flask_running()
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
         r.raise_for_status()
@@ -428,6 +403,11 @@ with tab3:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
 with tab4:
+    # Lauren, you can work here
+    # keep in mind the default text-color is white for st.write
+    st.write("Testing")
+
+with tab5:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
     src = f"https://drive.google.com/embeddedfolderview?id={FOLDER_ID}#list"
@@ -436,7 +416,7 @@ with tab4:
         height=620,
         scrolling=True,
     )
-        
+
 with tab5:
     st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/JasonP1-code/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p></a>""",unsafe_allow_html=True)
