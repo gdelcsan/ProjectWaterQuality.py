@@ -9,7 +9,7 @@ import datetime
 
 # configuration
 load_dotenv()
-BASE_URL = "https://biscaynebayproject.onrender.com"
+BASE_URL = os.getenv("FLASK_URL")
 
 st.set_page_config(page_title="Biscayne Bay Water Datasets", page_icon="🌊", layout="wide")
 
