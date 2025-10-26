@@ -213,7 +213,7 @@ st.sidebar.header("Control Panel")
 
 ##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-        "Select dataset (Only for 1st/3rd tabs):",
+        "Select a dataset for tabs 1 & 3:",
         list(datasets.keys()),
         index=0,
 )
