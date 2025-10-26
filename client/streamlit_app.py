@@ -360,7 +360,7 @@ with tab2:
                 st.markdown(
                 f'<p style="color: black;">{count} documents found.</p>',
                 unsafe_allow_html=True)
-                st.dataframe(pd.DataFrame(documents), use_container_width=True)
+                st.dataframe(pd.DataFrame(documents), width='stretch')
             else:
                 st.error("No documents were found in the collection.")
         except requests.exceptions.RequestException as e:
@@ -436,7 +436,7 @@ with tab3:
         elif chart_type == "Line":
             fig = px.line(df, x=x_col, y=y_col, **_opt_kwargs())
 
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
     # Map plot
     else:
@@ -481,14 +481,14 @@ with tab3:
                 map_style="open-street-map",
                 margin=dict(l=0, r=0, t=0, b=0)
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
             
 with tab4:
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=8)
         r.raise_for_status()
         stats = r.json()
-        st.dataframe(pd.DataFrame(stats), use_container_width=True)
+        st.dataframe(pd.DataFrame(stats), width='stretch')
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
@@ -566,7 +566,7 @@ with tab5:
                     unsafe_allow_html=True)
                     if metric != "All Columns":
                         df = df[metric]
-                    st.dataframe(df, use_container_width=True)
+                    st.dataframe(df, width='stretch')
                 else:
                     st.error("No outliers were found in the collection.")
             except requests.exceptions.RequestException as e:
