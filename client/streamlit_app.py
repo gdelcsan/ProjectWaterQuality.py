@@ -372,23 +372,20 @@ with tab3:
     df = selected_clean.copy()
 
     chart_type = st.session_state.get("chart_type", "Map")
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
     
     # Common helpers
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    if "chart_type" not in st.session_state:
-        st.session_state["chart_type"] = "Map"
-        
-    bcols = st.columns(3)
-    if bcols[0].button("Scatter"):
-        st.session_state["chart_type"] = "Scatter"
-    if bcols[1].button("Line"):
-        st.session_state["chart_type"] = "Line"
-    if bcols[2].button("Map"):
-        st.session_state["chart_type"] = "Map"
-
+    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Chart type</p>", unsafe_allow_html=True)
+    chart_type = st.selectbox(
+    "Chart type",
+    options=["Scatter", "Line", "Map"],
+    index=["Scatter","Line","Map"].index(st.session_state["chart_type"]),
+    key="chart_type_select",
+    label_visibility="collapsed"
+    )
+    
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
