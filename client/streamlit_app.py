@@ -5,6 +5,7 @@ import plotly.express as px
 from dotenv import load_dotenv
 import numpy as np
 import os
+import datetime
 
 # configuration
 load_dotenv()
@@ -83,6 +84,18 @@ df3 = pd.read_csv("./database/2022-nov16.csv")
 df4 = pd.read_csv("./database/2021-dec16.csv")
 all_dfs = [df1, df2, df3, df4]
 
+query_parameters = {
+    "min_time": None, 
+    "max_time": None, 
+    "min_temp": None, 
+    "max_temp": None, 
+    "min_sal": None, 
+    "max_sal": None, 
+    "min_odo": None, 
+    "max_odo": None, 
+    "limit": None, 
+}
+
 ##datasets for drop down
 datasets = {
     "Oct 7, 2022": df1,
@@ -132,6 +145,21 @@ def global_min_max(dfs, col):
         return None, None
     return float(pd.Series(vals).min()), float(pd.Series(vals).max())
 
+def global_min_max_time(dfs):
+    """Return (min, max) across dfs[col], skipping NaNs and missing columns."""
+    mins = []
+    maxs = []
+    for d in dfs:
+        if TIMESTAMP_COL in d.columns:
+            mins.append(d[TIMESTAMP_COL].min())
+            maxs.append(d[TIMESTAMP_COL].max())
+    if not mins or not maxs:
+        return None, None
+    return min(mins), max(maxs)
+
+def convert_to_time(string):
+    return datetime.datetime.strptime(string, "%H:%M:%S").time()
+
 def clean(df, filepath):
     # ZScore Formula
     # zscore = ((X - mean) / standard deviation))
@@ -153,8 +181,8 @@ def clean(df, filepath):
     cleaned_dataset = df[~outliers]
 
     # Moving "timestamp" column to be the first one
-    moved_column = cleaned_dataset.pop("Time")
-    cleaned_dataset.insert(0, "Time", moved_column)
+    moved_column = cleaned_dataset.pop("Time hh:mm:ss")
+    cleaned_dataset.insert(0, "Time hh:mm:ss", moved_column)
 
     # Generating csv, printing report, and sending request to flask with json data, to upload to MongoDB
     cleaned_dataset.to_csv(filepath, index = False)
@@ -169,7 +197,7 @@ def clean(df, filepath):
 TEMP_ALIASES = ['Temperature (C)', 'Temperature (°C)', 'Temperature', 'Temp (C)', 'Temperature (c)']
 ODO_ALIASES  = ['ODO (mg/L)', 'ODO mg/L', 'ODO', 'ODO_mg_L']
 PH_ALIASES   = ['pH', 'PH']
-TIMESTAMP_ALIASES = ['Time']
+TIMESTAMP_ALIASES = ['Time hh:mm:ss']
 
 TEMP_COL = find_existing_col(all_dfs, TEMP_ALIASES)
 ODO_COL  = find_existing_col(all_dfs, ODO_ALIASES)
@@ -191,13 +219,14 @@ st.sidebar.header("Control Panel")
 
 ##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-        "Select dataset:",
+        "Select dataset (Only for first tab):",
         list(datasets.keys()),
         index=0,
 )
 
 selected_df = datasets[selected_dataset_name]
 
+st.sidebar.header("Filters")
 # Responsible for cleaning csv files if they're initially missing
 i = 0
 keysList = list(clean_datasets.keys())
@@ -205,99 +234,100 @@ for str in ["./database/cleaned_2022-oct7.csv", "./database/cleaned_2021-oct21.c
     df = check_exceptions(str)
     if df.empty:
         df = clean(datasets[keysList[i]], str)
+    df[TIMESTAMP_COL] = df[TIMESTAMP_COL].map(convert_to_time)
     clean_datasets.update({keysList[i]: df})
     i += 1
 
 selected_clean = clean_datasets[selected_dataset_name]
+all_clean = list(clean_datasets.values())
 
-# 1) Temperature slider (only if column found and has data)
+# 1) Timestamp Slider
+if TIMESTAMP_COL:
+    time_min_val, time_max_val = global_min_max_time(all_clean)
+    if time_min_val is not None:
+        time_min, time_max = st.sidebar.slider(
+            "Start/End Timestamps",
+            time_min_val, time_max_val,
+            (time_min_val, time_max_val)
+        )
+        query_parameters.update({"min_time": time_min})
+        query_parameters.update({"max_time": time_max})
+    else:
+        st.sidebar.info(f"No numeric data found for {TIMESTAMP_COL}.")
+        time_min = time_max = None
+else:
+    time_min = time_max = None
+
+# 2) Temperature slider (only if column found and has data)
 if TEMP_COL:
-    temp_min_val, temp_max_val = global_min_max(all_dfs, TEMP_COL)
+    temp_min_val, temp_max_val = global_min_max(all_clean, TEMP_COL)
     if temp_min_val is not None:
         temp_min, temp_max = st.sidebar.slider(
             f"{TEMP_COL}",
             temp_min_val, temp_max_val,
             (temp_min_val, temp_max_val)
         )
+        query_parameters.update({"min_temp": temp_min})
+        query_parameters.update({"max_temp": temp_max})
     else:
         st.sidebar.info(f"No numeric data found for {TEMP_COL}.")
         temp_min = temp_max = None
 else:
     temp_min = temp_max = None
 
-# 2) Salinity (pH) slider
+# 3) Salinity (pH) slider
 if SAL_COL:
-    sal_min_val, sal_max_val = global_min_max(all_dfs, SAL_COL)
+    sal_min_val, sal_max_val = global_min_max(all_clean, SAL_COL)
     if sal_min_val is not None:
         sal_min, sal_max = st.sidebar.slider(
             f"{SAL_COL}",
             sal_min_val, sal_max_val,
             (sal_min_val, sal_max_val)
         )
+        query_parameters.update({"min_sal": sal_min})
+        query_parameters.update({"max_sal": sal_max})
     else:
         st.sidebar.info(f"No numeric data found for {SAL_COL}.")
         sal_min = sal_max = None
 else:
     sal_min = sal_max = None
 
-# 3) ODO slider
+# 4) ODO slider
 if ODO_COL:
-    odo_min_val, odo_max_val = global_min_max(all_dfs, ODO_COL)
+    odo_min_val, odo_max_val = global_min_max(all_clean, ODO_COL)
     if odo_min_val is not None:
         odo_min, odo_max = st.sidebar.slider(
             f"{ODO_COL}",
             odo_min_val, odo_max_val,
             (odo_min_val, odo_max_val)
         )
+        query_parameters.update({"min_odo": odo_min})
+        query_parameters.update({"max_odo": odo_max})
     else:
         st.sidebar.info(f"No numeric data found for {ODO_COL}.")
         odo_min = odo_max = None
 else:
     odo_min = odo_max = None
 
-#Limit
-limit_min, limit_max = st.sidebar.slider(
+# 5) Limit Slider
+limit = st.sidebar.slider(
     "Limit",
     100,
     1000,
-    (100, 500)
+    100
 )
+query_parameters.update({"limit": limit})
 
-#TimeStamp
-if TIMESTAMP_COL:
-    ##st.sidebar.markdown(f"### Filter by {TIMESTAMP_COL}")
-
-    start_time_str = st.sidebar.text_input("Start time (MM:SS.s)", value="00:00.0")
-    end_time_str   = st.sidebar.text_input("End time (MM:SS.s)", value="30:00.0")  # adjust max as needed
-
-    def time_to_sec(t):
-        try:
-            m, s = t.split(":")
-            return float(m) * 60 + float(s)
-        except:
-            return None
-
-    start_time_sec = time_to_sec(start_time_str)
-    end_time_sec   = time_to_sec(end_time_str)
-
-    if start_time_sec is None or end_time_sec is None:
-        st.sidebar.warning("Invalid timestamp format! Use MM:SS.s")
-        time_min_val = time_max_val = None
-    else:
-        time_min_val = start_time_sec
-        time_max_val = end_time_sec
-else:
-    time_min_val = time_max_val = None
-
-# 4) Pagination Inputs
-#limit = st.sidebar.number_input("Rows per page (Limit)", 10, 100, value=25)
-#page = st.sidebar.number_input("Page number", 1, value=1)
+# 6) Skip Text-Box (for pagination)
+skip = st.sidebar.number_input("Skip", value = 0)
+if skip > 500: st.sidebar.warning("A large skip value may exceed the maximum size of the collection.")
 
 # Streamlit UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "Datasets",
+    "Filtered Dataset",
     "Plotly Charts",
     "Statistics",
     "Outliers",
@@ -316,6 +346,34 @@ with tab1:
     st.write(selected_df)
 
 with tab2:
+    st.markdown(
+        f'<h2 style="color: black;">Dataset w/ query parameters</h2>',
+        unsafe_allow_html=True)
+    if st.button("Load", key="filters_button"):
+        try:
+            url = f"{BASE_URL}/api/observations?"
+            for key, value in query_parameters.items():
+                if value is not None:
+                    url += f"{key}={value}&"
+            new_url = url[:-1]
+            print(new_url)
+
+            r = requests.get(new_url, timeout=3)
+            r.raise_for_status()
+            filters = r.json()
+            if (len(filters) != 0):
+                count = filters["count"]
+                documents = filters["items"]
+                st.markdown(
+                f'<p style="color: black;">{count} documents found.</p>',
+                unsafe_allow_html=True)
+                st.dataframe(pd.DataFrame(documents), use_container_width=True)
+            else:
+                st.error("No documents were found in the collection.")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not reach stats API at {BASE_URL}/api/observations\n{e}")
+
+with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name} Plotly Charts</h3>', unsafe_allow_html=True)
 
     df = selected_clean.copy()
@@ -433,7 +491,7 @@ with tab2:
             )
             st.plotly_chart(fig, use_container_width=True)
             
-with tab3:
+with tab4:
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
         r.raise_for_status()
@@ -541,6 +599,104 @@ with tab4:
                 st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
             
 with tab5:
+    st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Column</p>", unsafe_allow_html=True)
+
+    df = selected_clean.copy()
+    num_cols = df.select_dtypes(include="number").columns.tolist()
+    if not num_cols:
+        st.warning("No numeric columns found in the selected dataset.")
+    else:
+        metric = st.selectbox(
+            label="Column",
+            options=num_cols,
+            index=0,
+            key="outliers_column_select", 
+            label_visibility="collapsed"
+        )
+
+        st.markdown("<p style='color:black; font-size:20px; font-weight:600; margin-bottom:0;'>Method</p>", unsafe_allow_html=True)
+        method = st.selectbox(
+            label="Method",
+            options=["IQR", "Z-score"],
+            index=0,
+            key="outliers_method_select", 
+            label_visibility="collapsed"
+        )
+
+        if method == "IQR":
+            st.markdown(
+            "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>IQR multiplier</p>",
+            unsafe_allow_html=True
+            )
+            k = st.number_input(
+            label="IQR multiplier",
+            min_value=0.1, max_value=10.0, value=1.5, step=0.1,
+            key="outliers_k_iqr",
+            label_visibility="collapsed"  
+        )
+        else:
+            st.markdown(
+            "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Z-score threshold</p>",
+            unsafe_allow_html=True
+            )
+            k = st.number_input(
+            label="Z-score threshold",
+            min_value=0.5, max_value=10.0, value=3.0, step=0.1,
+            key="outliers_k_zscore",
+            label_visibility="collapsed"
+            )
+
+    st.markdown(
+    "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Return detail</p>",
+    unsafe_allow_html=True
+    )
+    include = st.selectbox(
+    "Return detail",
+    options=["rows", "values", "minimal"],
+    index=0,
+    key="outliers_include_select",
+    label_visibility="collapsed",
+    help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
+    )
+
+    if st.button("Confirm", key="outliers_button"):
+            try:
+                params = {
+                    "field": metric,
+                    "method": method.lower(),
+                    "k": k,
+                    "dataset": selected_dataset_name,
+                    "include": include
+                }
+                url = f"{BASE_URL}/api/outliers"
+                r = requests.get(url, params=params, timeout=12)
+                data = r.json()
+
+                if r.ok:
+                    if isinstance(data, list):
+                        st.success(f"Flagged records: {len(data)}")
+                        rows = []
+                        for item in data:
+                            if "record" in item and isinstance(item["record"], dict):
+                                row = {"row_index": item.get("row_index"), **item["record"]}
+                            else:
+                                row = item
+                            rows.append(row)
+                        if rows:
+                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
+                        else:
+                            st.info("No outliers found for the chosen parameters.")
+                    else:
+                        st.write(data)
+                else:
+                    if isinstance(data, dict) and "error" in data:
+                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
+                    else:
+                        r.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
+            
+with tab6:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
     FOLDER_ID = "1_FbQvwhNMpDJTELHY7jhln7kWLelL8MN"
     src = f"https://drive.google.com/embeddedfolderview?id={FOLDER_ID}#list"
@@ -550,7 +706,7 @@ with tab5:
         scrolling=True,
     )
 
-with tab6:
+with tab7:
     st.markdown("""<a href="https://github.com/gdelcsan/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Gabriela del Cristo</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/JasonP1-code/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/McArthurMilk/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Luis Gutierrez</p></a>""",unsafe_allow_html=True)

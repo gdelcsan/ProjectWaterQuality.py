@@ -40,16 +40,18 @@ def helper(field, value):
     selector = ""
     field_name = ""
     substring = field[4:]
-    if "min" in field: selector = "$gt"
-    elif "max" in field: selector = "$lt"
+    if "min" in field: selector = "$gte"
+    elif "max" in field: selector = "$lte"
     
     match substring:
+        case "time":
+            field_name = "Time hh:mm:ss"
         case "temp":
-            field_name = "Temperature (C)"
+            field_name = "Temperature (c)"
         case "sal":
-            field_name = "Salinity (ppt)"
+            field_name = "pH"
         case "odo":
-            field_name = "ODO (mg/L)"
+            field_name = "ODO mg/L"
             
     return {field_name: {selector: value}}
 
@@ -64,19 +66,20 @@ def query(params):
         filter_query = {}
     elif len(params) == 1:
         (key, val) = params.popitem()
-        filter_query = helper(key, float(val))
+        if not "time" in key:
+            val = float(val)
+        filter_query = helper(key, val)
     elif len(params) > 1:
         temp = []
         filter_query = {"$and": temp}
         for key, val in params.items():
-            temp.append(helper(key, float(val)))
+            if not "time" in key:
+                val = float(val)
+            temp.append(helper(key, val))
 
     count = collection.count_documents(filter = filter_query, skip = s, limit = l)
     cursor = collection.find(filter = filter_query, skip = s, limit = l)
 
-    if count == 0:
-        return "No documents found in the collection."
-    else:
-        return ({"count": count, "items": cursor.to_list()})
+    return ({"count": count, "items": cursor.to_list()})
     
 
