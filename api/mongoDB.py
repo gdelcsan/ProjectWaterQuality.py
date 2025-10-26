@@ -59,26 +59,29 @@ def query(params):
     cursor = None
     filter_query = None
     count = 0
-    s = params.pop("skip")
-    l = params.pop("limit")
     
     if len(params) == 0:
         filter_query = {}
-    elif len(params) == 1:
-        (key, val) = params.popitem()
-        if not "time" in key:
-            val = float(val)
-        filter_query = helper(key, val)
-    elif len(params) > 1:
-        temp = []
-        filter_query = {"$and": temp}
-        for key, val in params.items():
+        count = collection.count_documents(filter = filter_query)
+        cursor = collection.find(filter = filter_query)
+    else:
+        s = params.pop("skip")
+        l = params.pop("limit")
+        if len(params) == 1:
+            (key, val) = params.popitem()
             if not "time" in key:
                 val = float(val)
-            temp.append(helper(key, val))
+            filter_query = helper(key, val)
+        elif len(params) > 1:
+            temp = []
+            filter_query = {"$and": temp}
+            for key, val in params.items():
+                if not "time" in key:
+                    val = float(val)
+                temp.append(helper(key, val))
 
-    count = collection.count_documents(filter = filter_query, skip = s, limit = l)
-    cursor = collection.find(filter = filter_query, skip = s, limit = l)
+        count = collection.count_documents(filter = filter_query, skip = s, limit = l)
+        cursor = collection.find(filter = filter_query, skip = s, limit = l)
 
     return ({"count": count, "items": cursor.to_list()})
     

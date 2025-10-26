@@ -357,7 +357,6 @@ with tab2:
                 if value is not None:
                     url += f"{key}={value}&"
             new_url = url[:-1]
-            print(new_url)
 
             r = requests.get(new_url, timeout=3)
             r.raise_for_status()
@@ -506,6 +505,7 @@ with tab5:
 
     df = selected_clean.copy()
     num_cols = df.select_dtypes(include="number").columns.tolist()
+    num_cols.insert(0, "All Columns")
     if not num_cols:
         st.warning("No numeric columns found in the selected dataset.")
     else:
@@ -549,55 +549,36 @@ with tab5:
             label_visibility="collapsed"
             )
 
-    st.markdown(
-    "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Return detail</p>",
-    unsafe_allow_html=True
-    )
-    include = st.selectbox(
-    "Return detail",
-    options=["rows", "values", "minimal"],
-    index=0,
-    key="outliers_include_select",
-    label_visibility="collapsed",
-    help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
-    )
-
     if st.button("Confirm", key="outliers_button"):
             try:
                 params = {
                     "field": metric,
                     "method": method.lower(),
                     "k": k,
-                    "dataset": selected_dataset_name,
-                    "include": include
                 }
-                url = f"{BASE_URL}/api/outliers"
-                r = requests.get(url, params=params, timeout=12)
-                data = r.json()
+                url = f"{BASE_URL}/api/outliers?"
+                for key, value in params.items():
+                    if value is not None:
+                        url += f"{key}={value}&"
+                new_url = url[:-1]
 
-                if r.ok:
-                    if isinstance(data, list):
-                        st.success(f"Flagged records: {len(data)}")
-                        rows = []
-                        for item in data:
-                            if "record" in item and isinstance(item["record"], dict):
-                                row = {"row_index": item.get("row_index"), **item["record"]}
-                            else:
-                                row = item
-                            rows.append(row)
-                        if rows:
-                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
-                        else:
-                            st.info("No outliers found for the chosen parameters.")
-                    else:
-                        st.write(data)
+                r = requests.get(new_url, timeout=3)
+                r.raise_for_status()
+                outliers = r.json()
+                count = outliers["count"]
+                if (count != 0):
+                    documents = outliers["items"]
+                    df = pd.DataFrame(documents)
+                    st.markdown(
+                    f'<p style="color: black;">{count} outliers found.</p>',
+                    unsafe_allow_html=True)
+                    if metric != "All Columns":
+                        df = df[metric]
+                    st.dataframe(df, use_container_width=True)
                 else:
-                    if isinstance(data, dict) and "error" in data:
-                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                    else:
-                        r.raise_for_status()
+                    st.error("No outliers were found in the collection.")
             except requests.exceptions.RequestException as e:
-                st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
+                st.error(f"Could not reach stats API at {BASE_URL}/api/outliers\n{e}")
             
 with tab6:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)
