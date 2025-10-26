@@ -372,7 +372,6 @@ with tab3:
     df = selected_clean.copy()
 
     chart_type = st.session_state.get("chart_type", "Map")
-    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
     
     # Common helpers
     all_cols = df.columns.tolist()
