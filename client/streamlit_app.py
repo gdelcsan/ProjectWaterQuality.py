@@ -378,16 +378,16 @@ with tab3:
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    if "chart_type" not in st.session_state:
-        st.session_state["chart_type"] = "Map"
-        
-    bcols = st.columns(3)
-    if bcols[0].button("Scatter"):
-        st.session_state["chart_type"] = "Scatter"
-    if bcols[1].button("Line"):
-        st.session_state["chart_type"] = "Line"
-    if bcols[2].button("Map"):
-        st.session_state["chart_type"] = "Map"
+    st.session_state.setdefault("chart_type", "Map")
+
+    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Chart type</p>", unsafe_allow_html=True)
+    chart_type = st.selectbox(
+    "Chart type",
+    options=["Scatter", "Line", "Map"],
+    index=["Scatter","Line","Map"].index(st.session_state["chart_type"]),
+    key="chart_type_select",
+    label_visibility="collapsed"
+    )
 
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
