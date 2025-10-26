@@ -43,7 +43,6 @@ def upload():
 @app.route('/api/observations',methods=['GET'])
 def observations():
     name_args = ["min_time", "max_time", "min_temp", "max_temp", "min_sal", "max_sal", "min_odo", "max_odo", "limit", "skip"]
-    data = None
     params = {}
     for i in range(len(name_args)):
         flask_request = request.args.get(name_args[i])
@@ -51,23 +50,19 @@ def observations():
 
     if len(params) == 0 and len(request.args.keys()) > 0:
         abort(400, "Arguments provided are not supported.")
-
-    if not request.args:
-        data = query({})
+        
+    if not "limit" in params: 
+        params["limit"] = 100
     else:
-            
-        if not "limit" in params: 
-            params["limit"] = 100
-        else:
-            params["limit"] = int(params["limit"])
-            if params["limit"] > 1000: 
-                params["limit"] = 1000
-        if not "skip" in params: 
-            params["skip"] = 0
-        else: 
-            params["skip"] = int(params["skip"])
+        params["limit"] = int(params["limit"])
+        if params["limit"] > 1000: 
+            params["limit"] = 1000
+    if not "skip" in params: 
+        params["skip"] = 0
+    else: 
+        params["skip"] = int(params["skip"])
 
-        data = query(params)
+    data = query(params)
     count = data["count"]
     if count != 0:
         documents = data["items"]

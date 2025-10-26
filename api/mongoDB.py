@@ -57,11 +57,11 @@ def helper(field, value):
 
 def query(params):
     cursor = None
-    filter_query = None
+    filter_query = {}
     count = 0
     
     if len(params) == 0:
-        filter_query = {}
+        
         count = collection.count_documents(filter = filter_query)
         cursor = collection.find(filter = filter_query)
     else:
