@@ -9,7 +9,15 @@ import datetime
 
 # configuration
 load_dotenv()
-BASE_URL = os.getenv("FLASK_URL")
+"""
+FLASK_HOST = "127.0.0.1"
+FLASK_PORT = 5050
+BASE_URL = f"http://{FLASK_HOST}:{FLASK_PORT}"
+"""
+
+#BASE_URL = os.getenv("FLASK_URL")
+BASE_URL = "http://127.0.0.1:5050"
+
 st.set_page_config(page_title="Biscayne Bay Water Datasets", page_icon="🌊", layout="wide")
 
 # Style
@@ -212,7 +220,7 @@ st.sidebar.header("Control Panel")
 
 ##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-        "Select dataset (only tab 1 & 3):",
+        "Select dataset (Only for first tab):",
         list(datasets.keys()),
         index=0,
 )
@@ -340,7 +348,7 @@ with tab1:
 
 with tab2:
     st.markdown(
-        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
+        f'<h2 style="color: black;">Dataset w/ query parameters</h2>',
         unsafe_allow_html=True)
     if st.button("Load", key="filters_button"):
         try:
@@ -371,20 +379,23 @@ with tab3:
     df = selected_clean.copy()
 
     chart_type = st.session_state.get("chart_type", "Map")
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
     
     # Common helpers
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Chart type</p>", unsafe_allow_html=True)
-    chart_type = st.selectbox(
-    "Chart type",
-    options=["Scatter", "Line", "Map"],
-    index=["Scatter","Line","Map"].index(st.session_state["chart_type"]),
-    key="chart_type_select",
-    label_visibility="collapsed"
-    )
-    
+    if "chart_type" not in st.session_state:
+        st.session_state["chart_type"] = "Map"
+        
+    bcols = st.columns(3)
+    if bcols[0].button("Scatter"):
+        st.session_state["chart_type"] = "Scatter"
+    if bcols[1].button("Line"):
+        st.session_state["chart_type"] = "Line"
+    if bcols[2].button("Map"):
+        st.session_state["chart_type"] = "Map"
+
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
