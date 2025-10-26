@@ -212,7 +212,7 @@ st.sidebar.header("Control Panel")
 
 ##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-        "Select dataset (Only for first tab):",
+        "Select dataset (only tab 1 & 3):",
         list(datasets.keys()),
         index=0,
 )
@@ -340,7 +340,7 @@ with tab1:
 
 with tab2:
     st.markdown(
-        f'<h2 style="color: black;">Dataset w/ query parameters</h2>',
+        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
         unsafe_allow_html=True)
     if st.button("Load", key="filters_button"):
         try:
