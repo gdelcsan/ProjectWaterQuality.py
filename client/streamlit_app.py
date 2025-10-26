@@ -10,6 +10,7 @@ import datetime
 # configuration
 load_dotenv()
 BASE_URL = os.getenv("FLASK_URL")
+
 st.set_page_config(page_title="Biscayne Bay Water Datasets", page_icon="🌊", layout="wide")
 
 # Style
@@ -212,7 +213,7 @@ st.sidebar.header("Control Panel")
 
 ##Dropdown of datasets
 selected_dataset_name = st.sidebar.selectbox(
-        "Select dataset (only tab 1 & 3):",
+        "Select dataset (Only for first tab):",
         list(datasets.keys()),
         index=0,
 )
@@ -349,7 +350,6 @@ with tab2:
                 if value is not None:
                     url += f"{key}={value}&"
             new_url = url[:-1]
-            print(new_url)
 
             r = requests.get(new_url, timeout=3)
             r.raise_for_status()
@@ -372,20 +372,23 @@ with tab3:
     df = selected_clean.copy()
 
     chart_type = st.session_state.get("chart_type", "Map")
+    st.markdown(f"<p style='color:black; font-size:0.9rem;'>Active chart: <strong>{chart_type}</strong></p>", unsafe_allow_html=True)
     
     # Common helpers
     all_cols = df.columns.tolist()
     num_cols = df.select_dtypes(include="number").columns.tolist()
 
-    st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Chart type</p>", unsafe_allow_html=True)
-    chart_type = st.selectbox(
-    "Chart type",
-    options=["Scatter", "Line", "Map"],
-    index=["Scatter","Line","Map"].index(st.session_state["chart_type"]),
-    key="chart_type_select",
-    label_visibility="collapsed"
-    )
-    
+    if "chart_type" not in st.session_state:
+        st.session_state["chart_type"] = "Map"
+        
+    bcols = st.columns(3)
+    if bcols[0].button("Scatter"):
+        st.session_state["chart_type"] = "Scatter"
+    if bcols[1].button("Line"):
+        st.session_state["chart_type"] = "Line"
+    if bcols[2].button("Map"):
+        st.session_state["chart_type"] = "Map"
+
     # Color
     st.markdown("<p style='color:black; font-weight:600; margin-bottom:0;'>Color (optional)</p>", unsafe_allow_html=True)
     color_opt = st.selectbox(
@@ -495,6 +498,7 @@ with tab5:
 
     df = selected_clean.copy()
     num_cols = df.select_dtypes(include="number").columns.tolist()
+    num_cols.insert(0, "All Columns")
     if not num_cols:
         st.warning("No numeric columns found in the selected dataset.")
     else:
@@ -538,55 +542,36 @@ with tab5:
             label_visibility="collapsed"
             )
 
-    st.markdown(
-    "<p style='color:black; font-size:15px; font-weight:600; margin-bottom:0;'>Return detail</p>",
-    unsafe_allow_html=True
-    )
-    include = st.selectbox(
-    "Return detail",
-    options=["rows", "values", "minimal"],
-    index=0,
-    key="outliers_include_select",
-    label_visibility="collapsed",
-    help="rows = include full row payload; values = only the chosen field value; minimal = index + value (+Time)"
-    )
-
     if st.button("Confirm", key="outliers_button"):
             try:
                 params = {
                     "field": metric,
                     "method": method.lower(),
                     "k": k,
-                    "dataset": selected_dataset_name,
-                    "include": include
                 }
-                url = f"{BASE_URL}/api/outliers"
-                r = requests.get(url, params=params, timeout=12)
-                data = r.json()
+                url = f"{BASE_URL}/api/outliers?"
+                for key, value in params.items():
+                    if value is not None:
+                        url += f"{key}={value}&"
+                new_url = url[:-1]
 
-                if r.ok:
-                    if isinstance(data, list):
-                        st.success(f"Flagged records: {len(data)}")
-                        rows = []
-                        for item in data:
-                            if "record" in item and isinstance(item["record"], dict):
-                                row = {"row_index": item.get("row_index"), **item["record"]}
-                            else:
-                                row = item
-                            rows.append(row)
-                        if rows:
-                            st.dataframe(pd.DataFrame(rows), use_container_width=True)
-                        else:
-                            st.info("No outliers found for the chosen parameters.")
-                    else:
-                        st.write(data)
+                r = requests.get(new_url, timeout=3)
+                r.raise_for_status()
+                outliers = r.json()
+                count = outliers["count"]
+                if (count != 0):
+                    documents = outliers["items"]
+                    df = pd.DataFrame(documents)
+                    st.markdown(
+                    f'<p style="color: black;">{count} outliers found.</p>',
+                    unsafe_allow_html=True)
+                    if metric != "All Columns":
+                        df = df[metric]
+                    st.dataframe(df, use_container_width=True)
                 else:
-                    if isinstance(data, dict) and "error" in data:
-                        st.error(f"/api/outliers error {r.status_code}: {data.get('error')} — {data.get('detail','')}")
-                    else:
-                        r.raise_for_status()
+                    st.error("No outliers were found in the collection.")
             except requests.exceptions.RequestException as e:
-                st.error(f"Could not reach /api/outliers at {BASE_URL}\n{e}")
+                st.error(f"Could not reach stats API at {BASE_URL}/api/outliers\n{e}")
             
 with tab6:
     st.markdown('<h3 style="color:black;">Project Files (Google Drive)</h3>',unsafe_allow_html=True)

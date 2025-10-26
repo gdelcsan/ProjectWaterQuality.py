@@ -47,11 +47,7 @@ def observations():
     for i in range(len(name_args)):
         flask_request = request.args.get(name_args[i])
         if flask_request: params.update({name_args[i] : flask_request})
-    
-    #import json
-    #with open("test.json", 'w') as f:
-        #json.dump(args, f)
-    
+
     if len(params) == 0 and len(request.args.keys()) > 0: 
         abort(400, "Arguments provided are not supported.")
         
@@ -79,37 +75,42 @@ def observations():
 
 @app.route('/api/stats',methods=['GET'])
 def stats():
-    documents = (observations()).get("items")
+    documents = (query({})).get("items")
     df = pd.DataFrame(documents)
     return jsonify((df.describe()).to_dict(orient='dict'))
 
-"""
 @app.route('/api/outliers',methods=['GET'])
-def pullOutliers():
+def outliers():
+    name_args = ["field", "method", "k"]
+    params = {}
+    for i in range(len(name_args)):
+        flask_request = request.args.get(name_args[i])
+        if flask_request: params.update({name_args[i] : flask_request})
+    
+    if (name_args == list(params.keys())) and (params["method"] == "z-score" or params["method"] == "iqr"): 
+        documents = (query({})).get("items")
+        df = pd.DataFrame(documents).select_dtypes(include=['number'])
 
-    # Dataset gets read
-    df = pd.read_csv("./database/biscayne_bay_dataset_oct_2022.csv")
+        if params["method"] == "z-score":
+            df_zscore = (df - df.mean()) / df.std(ddof=0)
+            outliers = df[(df_zscore.abs() > float(params["k"])).any(axis=1)]
+            return {"count": str(len(outliers)), "items": outliers.to_dict(orient="records")}
 
-    # Use columns to check for outliers
-    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
+        elif params["method"] == "iqr":
+            df_IQR = pd.DataFrame()
+            for column in df.columns:
+                Q1 = df[column].quantile(0.25)
+                Q3 = df[column].quantile(0.75)
+                IQR = Q3 - Q1
+                lower_bound = Q1 - float(params["k"]) * IQR
+                upper_bound = Q3 + float(params["k"]) * IQR
+                outliers_columns = df[(df[column].abs() < lower_bound) | (df[column].abs() > upper_bound)]
+                # avoid duplicates if an entire row is an outlier among several columns
+                df_IQR = pd.concat([df_IQR, outliers_columns]).drop_duplicates()
 
-    #Z-score is computed for each value
-    df_zscore = (df[outlier_columns] - df[outlier_columns].mean()) / df[outlier_columns].std(ddof=0)
-
-    # Identify outliers
-    outliers = (df_zscore.abs() > 3).any(axis=1)
-
-    # Filter out olier rows
-    outlier_rows = df[outliers]
-
-    #JSON output
-    outlier_dict = outlier_rows.to_dict(orient='records')
-
-    return jsonify({
-        "total_outliers": len(outlier_rows),
-        "outlier_rows": outlier_dict
-    })
-"""
+            return {"count": str(len(df_IQR)), "items": df_IQR.to_dict(orient="records")}
+    else:
+        abort(400, "Arguments provided are not supported.")
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
