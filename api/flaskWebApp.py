@@ -1,18 +1,14 @@
 from flask import Flask, jsonify, request, abort
-from mongoDB import upload, query
+from mongoDB import upload_MONGO, query, mongo_OK
 import pandas as pd
 
 app = Flask(__name__)
-
-# print(df.head())
-# print(df.columns)
 
 @app.route('/')
 def index():
     return jsonify({
         "routes": {
             "/api/health": "returns API status",
-            "/api/cleandataset": "cleans raw water quality data",
             "/api/observations": 
             {
                 "return documents with optional query parameters":
@@ -30,45 +26,21 @@ def index():
         }
     })
 
-@app.route('/api/health')
+@app.route('/api/health',methods=['GET'])
 def status():
-    return { "status": "ok" }
+    status = {"status": "OK", "mongoDB": "ONLINE" if mongo_OK else "OFFLINE"}
+    return jsonify(status), 200
 
-@app.route('/api/cleandataset',methods=['GET'])
-def cleaning_dataset():
-    # ZScore Formula
-    # zscore = ((X - mean) / standard deviation))
-    df = pd.read_csv("database/biscayne_bay_dataset_oct_2022.csv")
-    
-    # Columns for Outliers
-    outlier_columns = ['Temperature (C)', 'pH', 'ODO (mg/L)']
+# Will return error if accessed through a GET request, only allowed from streamlit
+@app.route('/api/upload', methods=['POST'])
+def upload():
+    if request.is_json:
+        results = upload_MONGO(request.get_json())
+        return jsonify(results), 200
+    else:
+        return jsonify('Error. Request must be JSON'), 400
 
-    # Using Formula
-    df_zscore = (df[outlier_columns] - df[outlier_columns].mean()) / df[outlier_columns].std(ddof=0)
-
-    # Outliers that have |z| > 3
-    outliers = (df_zscore.abs() > 3).any(axis=1)
-
-    totalrows = len(df)  # number of rows in data
-    removedrows = outliers.sum()  # number of rows removed
-    remainingrows = totalrows - removedrows  # remaininggrows
-
-    # Removing outliers
-    cleaned_dataset = df[~outliers]
-    clean_dict = cleaned_dataset.to_dict(orient='records')
-
-    # Responsible for creating database/report.txt:
-    #report = f"Removed {totalrows - removedrows} outliers (from total of {totalrows} rows to remaining rows of {remainingrows})"
-    #fp = open("database/report.txt", "w")
-    #fp.write(report)
-    #fp.close()
-    
-    upload(clean_dict)
-
-    #Returning as JSON
-    return {"status": "cleaned"}
-
-@app.route('/api/observations')
+@app.route('/api/observations',methods=['GET'])
 def observations():
     name_args = ["min_temp", "max_temp", "min_sal", "max_sal", "min_odo", "max_odo", "limit", "skip"]
     args = {}
@@ -90,17 +62,21 @@ def observations():
     else: 
         args["skip"] = int(args["skip"])
     
-    from bson import json_util
-    import json
-    return json.loads(json_util.dumps(query(args)))
-    #return query(args)
+    data = query(args)
+    documents = data["items"]
+    for item in documents:
+        del item['_id']
 
-@app.route('/api/stats')
+    return jsonify(data)
+
+@app.route('/api/stats',methods=['GET'])
 def stats():
-    clean_dataset = pd.read_csv("database/cleaned_data.csv")
-    return jsonify((clean_dataset.describe()).to_dict(orient='dict'))
+    documents = (observations().get_json(force = True)).get("items")
+    df = pd.DataFrame(documents)
+    return jsonify((df.describe()).to_dict(orient='dict'))
 
-@app.route('/api/outliers')
+"""
+@app.route('/api/outliers',methods=['GET'])
 def pullOutliers():
 
     # Dataset gets read
@@ -125,6 +101,8 @@ def pullOutliers():
         "total_outliers": len(outlier_rows),
         "outlier_rows": outlier_dict
     })
+"""
 
 if __name__ == '__main__':
     app.run(debug=True, port=5050)
+    #app.run(host='0.0.0.0', debug=True)
