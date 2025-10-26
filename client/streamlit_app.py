@@ -351,7 +351,7 @@ with tab2:
                     url += f"{key}={value}&"
             new_url = url[:-1]
 
-            r = requests.get(new_url, timeout=3)
+            r = requests.get(new_url, timeout=8)
             r.raise_for_status()
             filters = r.json()
             if (len(filters) != 0):
@@ -485,7 +485,7 @@ with tab3:
             
 with tab4:
     try:
-        r = requests.get(f"{BASE_URL}/api/stats", timeout=3)
+        r = requests.get(f"{BASE_URL}/api/stats", timeout=8)
         r.raise_for_status()
         stats = r.json()
         st.dataframe(pd.DataFrame(stats), use_container_width=True)
@@ -554,7 +554,7 @@ with tab5:
                         url += f"{key}={value}&"
                 new_url = url[:-1]
 
-                r = requests.get(new_url, timeout=3)
+                r = requests.get(new_url, timeout=8)
                 r.raise_for_status()
                 outliers = r.json()
                 count = outliers["count"]
