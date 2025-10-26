@@ -341,7 +341,7 @@ with tab1:
 
 with tab2:
     st.markdown(
-        f'<h2 style="color: black;">Dataset w/ query parameters</h2>',
+        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
         unsafe_allow_html=True)
     if st.button("Load", key="filters_button"):
         try:
