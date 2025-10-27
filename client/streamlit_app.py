@@ -475,7 +475,7 @@ with tab3:
                 label_visibility="collapsed"
             )
 
-            fig = px.scatter_mapbox(
+            fig = px.scatter_map(
                 df,
                 lat=lat_col,
                 lon=lon_col,
