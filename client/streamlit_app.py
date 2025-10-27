@@ -363,7 +363,10 @@ with tab2:
                 st.markdown(
                 f'<p style="color: black;">{count} documents found.</p>',
                 unsafe_allow_html=True)
-                st.dataframe(pd.DataFrame(documents), width='stretch')
+                df = pd.DataFrame(documents)
+                moved_column = df.pop("Time hh:mm:ss")
+                df.insert(0, "Time hh:mm:ss", moved_column)
+                st.dataframe(df, width='stretch')
             else:
                 st.error("No documents were found in the collection.")
         except requests.exceptions.RequestException as e:
