@@ -88,6 +88,7 @@ query_parameters = {
     "min_odo": None, 
     "max_odo": None, 
     "limit": None, 
+    "skip": None,
 }
 
 ##datasets for drop down
@@ -228,7 +229,7 @@ for str in ["./database/cleaned_2022-oct7.csv", "./database/cleaned_2021-oct21.c
     df = check_exceptions(str)
     if df.empty:
         df = clean(datasets[keysList[i]], str)
-    df[TIMESTAMP_COL] = df[TIMESTAMP_COL].map(convert_to_time)
+    df.loc[:, TIMESTAMP_COL] = df[TIMESTAMP_COL].map(convert_to_time)
     clean_datasets.update({keysList[i]: df})
     i += 1
 
@@ -313,8 +314,10 @@ limit = st.sidebar.slider(
 query_parameters.update({"limit": limit})
 
 # 6) Skip Text-Box (for pagination)
-skip = st.sidebar.number_input("Skip", value = 0)
+skip = st.sidebar.number_input("Skip", value = 0, min_value=0)
 if skip > 500: st.sidebar.warning("A large skip value may exceed the maximum size of the collection.")
+
+query_parameters.update({"skip": skip})
 
 # Streamlit UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
