@@ -442,7 +442,7 @@ with tab3:
         elif chart_type == "Line":
             fig = px.line(df, x=x_col, y=y_col, **_opt_kwargs())
 
-        st.plotly_chart(fig, width='stretch')
+        st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "responsive": True})
 
     # Map plot
     else:
@@ -475,7 +475,7 @@ with tab3:
                 label_visibility="collapsed"
             )
 
-            fig = px.scatter_map(
+            fig = px.scatter_mapbox(
                 df,
                 lat=lat_col,
                 lon=lon_col,
@@ -487,14 +487,14 @@ with tab3:
                 map_style="open-street-map",
                 margin=dict(l=0, r=0, t=0, b=0)
             )
-            st.plotly_chart(fig, width='stretch')
+            st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "responsive": True})
             
 with tab4:
     try:
         r = requests.get(f"{BASE_URL}/api/stats", timeout=8)
         r.raise_for_status()
         stats = r.json()
-        st.dataframe(pd.DataFrame(stats), width='stretch')
+        st.dataframe(df, use_container_width=True)
     except requests.exceptions.RequestException as e:
         st.error(f"Could not reach stats API at {BASE_URL}/api/stats\n{e}")
 
@@ -572,7 +572,7 @@ with tab5:
                     unsafe_allow_html=True)
                     if metric != "All Columns":
                         df = df[metric]
-                    st.dataframe(df, width='stretch')
+                    st.dataframe(df, use_container_width=True)
                 else:
                     st.error("No outliers were found in the collection.")
             except requests.exceptions.RequestException as e:
