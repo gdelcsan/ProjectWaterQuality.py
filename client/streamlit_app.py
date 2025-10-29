@@ -220,6 +220,7 @@ selected_dataset_name = st.sidebar.selectbox(
 )
 
 selected_df = datasets[selected_dataset_name]
+selected_clean = clean_datasets[selected_dataset_name]
 
 # Streamlit UI
 st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
@@ -286,7 +287,6 @@ for str in ["./database/cleaned_2022-oct7.csv", "./database/cleaned_2021-oct21.c
     clean_datasets.update({keysList[i]: df})
     i += 1
 
-selected_clean = clean_datasets[selected_dataset_name]
 all_clean = list(clean_datasets.values())
 
 # 1) Timestamp Slider
