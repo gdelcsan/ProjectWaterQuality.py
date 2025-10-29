@@ -245,6 +245,34 @@ with tab1:
     st.write(selected_df)
 
 with tab2:
+    st.markdown(
+        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
+        unsafe_allow_html=True)
+    if st.button("Load", key="filters_button"):
+        try:
+            url = f"{BASE_URL}/api/observations?"
+            for key, value in query_parameters.items():
+                if value is not None:
+                    url += f"{key}={value}&"
+            new_url = url[:-1]
+
+            r = requests.get(new_url, timeout=8)
+            r.raise_for_status()
+            filters = r.json()
+            if (len(filters) != 0):
+                count = filters["count"]
+                documents = filters["items"]
+                st.markdown(
+                f'<p style="color: black;">{count} documents found.</p>',
+                unsafe_allow_html=True)
+                df = pd.DataFrame(documents)
+                moved_column = df.pop("Time hh:mm:ss")
+                df.insert(0, "Time hh:mm:ss", moved_column)
+                st.dataframe(df, width='stretch')
+            else:
+                st.error("No documents were found in the collection.")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not reach stats API at {BASE_URL}/api/observations\n{e}")
 
     st.sidebar.header("Filters")
 # Responsible for cleaning csv files if they're initially missing
@@ -343,35 +371,6 @@ skip = st.sidebar.number_input("Skip", value = 0, min_value=0)
 if skip > 500: st.sidebar.warning("A large skip value may exceed the maximum size of the collection.")
 
 query_parameters.update({"skip": skip})
-
-    st.markdown(
-        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
-        unsafe_allow_html=True)
-    if st.button("Load", key="filters_button"):
-        try:
-            url = f"{BASE_URL}/api/observations?"
-            for key, value in query_parameters.items():
-                if value is not None:
-                    url += f"{key}={value}&"
-            new_url = url[:-1]
-
-            r = requests.get(new_url, timeout=8)
-            r.raise_for_status()
-            filters = r.json()
-            if (len(filters) != 0):
-                count = filters["count"]
-                documents = filters["items"]
-                st.markdown(
-                f'<p style="color: black;">{count} documents found.</p>',
-                unsafe_allow_html=True)
-                df = pd.DataFrame(documents)
-                moved_column = df.pop("Time hh:mm:ss")
-                df.insert(0, "Time hh:mm:ss", moved_column)
-                st.dataframe(df, width='stretch')
-            else:
-                st.error("No documents were found in the collection.")
-        except requests.exceptions.RequestException as e:
-            st.error(f"Could not reach stats API at {BASE_URL}/api/observations\n{e}")
 
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name} Plotly Charts</h3>', unsafe_allow_html=True)
