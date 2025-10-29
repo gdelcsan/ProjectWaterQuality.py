@@ -221,7 +221,32 @@ selected_dataset_name = st.sidebar.selectbox(
 
 selected_df = datasets[selected_dataset_name]
 
-st.sidebar.header("Filters")
+# Streamlit UI
+st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "Datasets",
+    "Filtered Dataset",
+    "Plotly Charts",
+    "Statistics",
+    "Outliers",
+    "Code",
+    "Contributors"
+])
+
+with tab1:
+    st.markdown(
+        f'<h2 style="color: black;">Clean Dataset for {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_clean)
+    st.markdown(
+        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_df)
+
+with tab2:
+
+    st.sidebar.header("Filters")
 # Responsible for cleaning csv files if they're initially missing
 i = 0
 keysList = list(clean_datasets.keys())
@@ -319,30 +344,6 @@ if skip > 500: st.sidebar.warning("A large skip value may exceed the maximum siz
 
 query_parameters.update({"skip": skip})
 
-# Streamlit UI
-st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
-
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "Datasets",
-    "Filtered Dataset",
-    "Plotly Charts",
-    "Statistics",
-    "Outliers",
-    "Code",
-    "Contributors"
-])
-
-with tab1:
-    st.markdown(
-        f'<h2 style="color: black;">Clean Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_clean)
-    st.markdown(
-        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_df)
-
-with tab2:
     st.markdown(
         f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
         unsafe_allow_html=True)
