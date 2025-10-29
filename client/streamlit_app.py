@@ -220,62 +220,8 @@ selected_dataset_name = st.sidebar.selectbox(
 )
 
 selected_df = datasets[selected_dataset_name]
-selected_clean = clean_datasets[selected_dataset_name]
 
-# Streamlit UI
-st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
-
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "Datasets",
-    "Filtered Dataset",
-    "Plotly Charts",
-    "Statistics",
-    "Outliers",
-    "Code",
-    "Contributors"
-])
-
-with tab1:
-    st.markdown(
-        f'<h2 style="color: black;">Clean Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_clean)
-    st.markdown(
-        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
-        unsafe_allow_html=True)
-    st.write(selected_df)
-
-with tab2:
-    st.markdown(
-        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
-        unsafe_allow_html=True)
-    if st.button("Load", key="filters_button"):
-        try:
-            url = f"{BASE_URL}/api/observations?"
-            for key, value in query_parameters.items():
-                if value is not None:
-                    url += f"{key}={value}&"
-            new_url = url[:-1]
-
-            r = requests.get(new_url, timeout=8)
-            r.raise_for_status()
-            filters = r.json()
-            if (len(filters) != 0):
-                count = filters["count"]
-                documents = filters["items"]
-                st.markdown(
-                f'<p style="color: black;">{count} documents found.</p>',
-                unsafe_allow_html=True)
-                df = pd.DataFrame(documents)
-                moved_column = df.pop("Time hh:mm:ss")
-                df.insert(0, "Time hh:mm:ss", moved_column)
-                st.dataframe(df, width='stretch')
-            else:
-                st.error("No documents were found in the collection.")
-        except requests.exceptions.RequestException as e:
-            st.error(f"Could not reach stats API at {BASE_URL}/api/observations\n{e}")
-
-    st.sidebar.header("Filters")
+st.sidebar.header("Filters")
 # Responsible for cleaning csv files if they're initially missing
 i = 0
 keysList = list(clean_datasets.keys())
@@ -287,6 +233,7 @@ for str in ["./database/cleaned_2022-oct7.csv", "./database/cleaned_2021-oct21.c
     clean_datasets.update({keysList[i]: df})
     i += 1
 
+selected_clean = clean_datasets[selected_dataset_name]
 all_clean = list(clean_datasets.values())
 
 # 1) Timestamp Slider
@@ -371,6 +318,59 @@ skip = st.sidebar.number_input("Skip", value = 0, min_value=0)
 if skip > 500: st.sidebar.warning("A large skip value may exceed the maximum size of the collection.")
 
 query_parameters.update({"skip": skip})
+
+# Streamlit UI
+st.markdown('<div class="header"><h1>Biscayne Bay Water Quality</h1><p>2021 - 2022</p></div>', unsafe_allow_html=True)
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "Datasets",
+    "Filtered Dataset",
+    "Plotly Charts",
+    "Statistics",
+    "Outliers",
+    "Code",
+    "Contributors"
+])
+
+with tab1:
+    st.markdown(
+        f'<h2 style="color: black;">Clean Dataset for {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_clean)
+    st.markdown(
+        f'<h2 style="color: black;">Original Dataset for {selected_dataset_name}</h2>',
+        unsafe_allow_html=True)
+    st.write(selected_df)
+
+with tab2:
+    st.markdown(
+        f'<h2 style="color: black;">Dataset with Query Parameters</h2>',
+        unsafe_allow_html=True)
+    if st.button("Load", key="filters_button"):
+        try:
+            url = f"{BASE_URL}/api/observations?"
+            for key, value in query_parameters.items():
+                if value is not None:
+                    url += f"{key}={value}&"
+            new_url = url[:-1]
+
+            r = requests.get(new_url, timeout=8)
+            r.raise_for_status()
+            filters = r.json()
+            if (len(filters) != 0):
+                count = filters["count"]
+                documents = filters["items"]
+                st.markdown(
+                f'<p style="color: black;">{count} documents found.</p>',
+                unsafe_allow_html=True)
+                df = pd.DataFrame(documents)
+                moved_column = df.pop("Time hh:mm:ss")
+                df.insert(0, "Time hh:mm:ss", moved_column)
+                st.dataframe(df, width='stretch')
+            else:
+                st.error("No documents were found in the collection.")
+        except requests.exceptions.RequestException as e:
+            st.error(f"Could not reach stats API at {BASE_URL}/api/observations\n{e}")
 
 with tab3:
     st.markdown(f'<h3 style="color:#000000;">{selected_dataset_name} Plotly Charts</h3>', unsafe_allow_html=True)
@@ -593,3 +593,4 @@ with tab7:
     st.markdown("""<a href="https://github.com/JasonP1-code/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Jason Pena</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="https://github.com/McArthurMilk/" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Luis Gutierrez</p></a>""",unsafe_allow_html=True)
     st.markdown("""<a href="#" target="_blank" style="text-decoration: none;"><p style="color:#000000; font-size:20px; font-weight:600;">☆ Lauren Stone</p></a>""",unsafe_allow_html=True)
+
